@@ -2,26 +2,25 @@
 
 namespace App\Controller;
 
-use App\Entity\TableRecord;
-use App\Form\TableRecordType;
+use App\Entity\ColorRecord;
+use App\Form\ColorRecordType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/admin')]
 class AdminController extends AbstractController
 {
     public function __construct(
         private EntityManagerInterface $entityManager
     ) {}
 
-    #[Route('/', name: 'admin_index')]
+    #[Route('/admin', name: 'admin_index')]
     public function index(): Response
     {
         $records = $this->entityManager
-            ->getRepository(TableRecord::class)
+            ->getRepository(ColorRecord::class)
             ->findBy([], ['id' => 'DESC']);
 
         return $this->render('admin/index.html.twig', [
@@ -29,11 +28,11 @@ class AdminController extends AbstractController
         ]);
     }
 
-    #[Route('/create', name: 'admin_create')]
+    #[Route('/admin/create', name: 'admin_create')]
     public function create(Request $request): Response
     {
-        $record = new TableRecord();
-        $form = $this->createForm(TableRecordType::class, $record);
+        $record = new ColorRecord();
+        $form = $this->createForm(ColorRecordType::class, $record);
 
         $form->handleRequest($request);
 
@@ -41,7 +40,7 @@ class AdminController extends AbstractController
             $this->entityManager->persist($record);
             $this->entityManager->flush();
 
-            $this->addFlash('success', 'Record created successfully!');
+            $this->addFlash('success', 'record_created_successfully');
 
             return $this->redirectToRoute('admin_index');
         }
@@ -51,17 +50,17 @@ class AdminController extends AbstractController
         ]);
     }
 
-    #[Route('/edit/{id}', name: 'admin_edit', requirements: ['id' => '\d+'])]
-    public function edit(Request $request, TableRecord $record): Response
+    #[Route('/admin/edit/{id}', name: 'admin_edit', requirements: ['id' => '\d+'])]
+    public function edit(Request $request, ColorRecord $record): Response
     {
-        $form = $this->createForm(TableRecordType::class, $record);
+        $form = $this->createForm(ColorRecordType::class, $record);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->entityManager->flush();
 
-            $this->addFlash('success', 'Record updated successfully!');
+            $this->addFlash('success', 'record_updated_successfully');
 
             return $this->redirectToRoute('admin_index');
         }
@@ -72,23 +71,23 @@ class AdminController extends AbstractController
         ]);
     }
 
-    #[Route('/delete/{id}', name: 'admin_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
-    public function delete(Request $request, TableRecord $record): Response
+    #[Route('/admin/delete/{id}', name: 'admin_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
+    public function delete(Request $request, ColorRecord $record): Response
     {
         if ($this->isCsrfTokenValid('delete'.$record->getId(), $request->request->get('_token'))) {
             $this->entityManager->remove($record);
             $this->entityManager->flush();
 
-            $this->addFlash('success', 'Record deleted successfully!');
+            $this->addFlash('success', 'record_deleted_successfully');
         } else {
-            $this->addFlash('error', 'Invalid CSRF token.');
+            $this->addFlash('error', 'invalid_csrf_token');
         }
 
         return $this->redirectToRoute('admin_index');
     }
 
-    #[Route('/view/{id}', name: 'admin_view', requirements: ['id' => '\d+'])]
-    public function view(TableRecord $record): Response
+    #[Route('/admin/view/{id}', name: 'admin_view', requirements: ['id' => '\d+'])]
+    public function view(ColorRecord $record): Response
     {
         return $this->render('admin/view.html.twig', [
             'record' => $record,

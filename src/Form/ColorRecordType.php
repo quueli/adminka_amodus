@@ -2,60 +2,52 @@
 
 namespace App\Form;
 
-use App\Entity\TableRecord;
+use App\Entity\ColorRecord;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class TableRecordType extends AbstractType
+class ColorRecordType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('field1', TextType::class, [
-                'label' => 'Field 1',
+            ->add('color', TextType::class, [
+                'label' => 'color',
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'Enter field 1 value'
+                    'placeholder' => 'enter_color'
                 ],
                 'required' => true,
             ])
-            ->add('field2', TextType::class, [
-                'label' => 'Field 2',
+            ->add('hexColorNumber', TextType::class, [
+                'label' => 'hex_color_number',
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'Enter field 2 value'
+                    'placeholder' => 'enter_hex_color'
                 ],
                 'required' => true,
             ])
-            ->add('field3', TextType::class, [
-                'label' => 'Field 3',
+            ->add('saturation', TextType::class, [
+                'label' => 'saturation',
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'Enter field 3 value'
+                    'placeholder' => 'enter_saturation'
                 ],
-                'required' => false,
+                'required' => true,
             ])
-            ->add('field4', TextType::class, [
-                'label' => 'Field 4',
+            ->add('palette', TextType::class, [
+                'label' => 'palette',
                 'attr' => [
                     'class' => 'form-control',
-                    'placeholder' => 'Enter field 4 value'
+                    'placeholder' => 'enter_palette'
                 ],
-                'required' => false,
-            ])
-            ->add('field5', TextType::class, [
-                'label' => 'Field 5',
-                'attr' => [
-                    'class' => 'form-control',
-                    'placeholder' => 'Enter field 5 value'
-                ],
-                'required' => false,
+                'required' => true,
             ])
             ->add('save', SubmitType::class, [
-                'label' => 'Save',
+                'label' => 'save',
                 'attr' => [
                     'class' => 'btn btn-primary'
                 ]
@@ -65,7 +57,7 @@ class TableRecordType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => TableRecord::class,
+            'data_class' => ColorRecord::class,
         ]);
     }
 }

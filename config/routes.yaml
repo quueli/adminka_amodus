@@ -1,4 +1,40 @@
 # config/routes.yaml
-admin:
+controllers:
     resource: ../src/Controller/
     type: attribute
+
+# Добавим явные маршруты для отладки
+home:
+    path: /
+    controller: App\Controller\HomeController::index
+
+test:
+    path: /test
+    controller: App\Controller\HomeController::test
+
+admin_index:
+    path: /admin
+    controller: App\Controller\AdminController::index
+
+admin_create:
+    path: /admin/create
+    controller: App\Controller\AdminController::create
+
+admin_edit:
+    path: /admin/edit/{id}
+    controller: App\Controller\AdminController::edit
+    requirements:
+        id: '\d+'
+
+admin_view:
+    path: /admin/view/{id}
+    controller: App\Controller\AdminController::view
+    requirements:
+        id: '\d+'
+
+admin_delete:
+    path: /admin/delete/{id}
+    controller: App\Controller\AdminController::delete
+    methods: [POST]
+    requirements:
+        id: '\d+'

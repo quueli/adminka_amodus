@@ -1,53 +1,46 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}View Record #{{ record.id }} - Admin Panel{% endblock %}
+{% block title %}{{ 'view_record'|trans }} #{{ record.id }} - {{ 'admin_panel'|trans }}{% endblock %}
 
 {% block body %}
 <div class="row">
     <div class="col-md-8 mx-auto">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1><i class="fas fa-eye"></i> View Record #{{ record.id }}</h1>
+            <h1><i class="fas fa-eye"></i> {{ 'view_record'|trans }} #{{ record.id }}</h1>
             <div>
                 <a href="{{ path('admin_edit', {'id': record.id}) }}" class="btn btn-warning">
-                    <i class="fas fa-edit"></i> Edit
+                    <i class="fas fa-edit"></i> {{ 'edit'|trans }}
                 </a>
                 <a href="{{ path('admin_index') }}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Back to List
+                    <i class="fas fa-arrow-left"></i> {{ 'back_to_list'|trans }}
                 </a>
             </div>
         </div>
 
         <div class="card">
             <div class="card-header">
-                <h5 class="mb-0">Record Details</h5>
+                <h5 class="mb-0">{{ 'record_details'|trans }}</h5>
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label"><strong>Field 1:</strong></label>
-                        <div class="form-control-plaintext">{{ record.field1|default('-') }}</div>
+                        <label class="form-label"><strong>{{ 'color'|trans }}:</strong></label>
+                        <div class="form-control-plaintext">{{ record.color|default('-') }}</div>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label"><strong>Field 2:</strong></label>
-                        <div class="form-control-plaintext">{{ record.field2|default('-') }}</div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label"><strong>Field 3:</strong></label>
-                        <div class="form-control-plaintext">{{ record.field3|default('-') }}</div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label"><strong>Field 4:</strong></label>
-                        <div class="form-control-plaintext">{{ record.field4|default('-') }}</div>
+                        <label class="form-label"><strong>{{ 'hex_color_number'|trans }}:</strong></label>
+                        <div class="form-control-plaintext">{{ record.hexColorNumber|default('-') }}</div>
                     </div>
                 </div>
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label"><strong>Field 5:</strong></label>
-                        <div class="form-control-plaintext">{{ record.field5|default('-') }}</div>
+                        <label class="form-label"><strong>{{ 'saturation'|trans }}:</strong></label>
+                        <div class="form-control-plaintext">{{ record.saturation|default('-') }}</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label"><strong>{{ 'palette'|trans }}:</strong></label>
+                        <div class="form-control-plaintext">{{ record.palette|default('-') }}</div>
                     </div>
                 </div>
             </div>
@@ -55,18 +48,18 @@
 
         <div class="card mt-3">
             <div class="card-header">
-                <h6 class="mb-0">Record Metadata</h6>
+                <h6 class="mb-0">{{ 'record_metadata'|trans }}</h6>
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4">
-                        <strong>ID:</strong> {{ record.id }}
+                        <strong>{{ 'id'|trans }}:</strong> {{ record.id }}
                     </div>
                     <div class="col-md-4">
-                        <strong>Created:</strong> {{ record.createdAt|date('Y-m-d H:i:s') }}
+                        <strong>{{ 'created_at'|trans }}:</strong> {{ record.createdAt|date('Y-m-d H:i:s') }}
                     </div>
                     <div class="col-md-4">
-                        <strong>Last Updated:</strong> {{ record.updatedAt|date('Y-m-d H:i:s') }}
+                        <strong>{{ 'last_updated'|trans }}:</strong> {{ record.updatedAt|date('Y-m-d H:i:s') }}
                     </div>
                 </div>
             </div>
@@ -75,10 +68,10 @@
         <div class="mt-3">
             <div class="btn-group" role="group">
                 <a href="{{ path('admin_edit', {'id': record.id}) }}" class="btn btn-warning">
-                    <i class="fas fa-edit"></i> Edit Record
+                    <i class="fas fa-edit"></i> {{ 'edit_record'|trans }}
                 </a>
                 <button type="button" class="btn btn-danger" onclick="confirmDelete({{ record.id }})">
-                    <i class="fas fa-trash"></i> Delete Record
+                    <i class="fas fa-trash"></i> {{ 'delete_record'|trans }}
                 </button>
             </div>
         </div>
