@@ -15,16 +15,13 @@
     {% block stylesheets %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #33393F;">
         <div class="container">
-            <a class="navbar-brand" href="{{ path('admin_index') }}">
-                <i class="fas fa-cogs"></i> {{ 'admin_panel'|trans }}
-            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="{{ path('admin_index') }}">
                             <i class="fas fa-list"></i> {{ 'records'|trans }}
@@ -36,6 +33,12 @@
                         </a>
                     </li>
                 </ul>
+                <div class="navbar-nav">
+                    <a class="navbar-brand-logo-container" href="{{ path('admin_index') }}" title="{{ 'admin_panel'|trans }}">
+                        <img src="/logo.png" alt="{{ 'admin_panel'|trans }}" class="navbar-brand-logo-right"
+                             onerror="this.style.display='none';">
+                    </a>
+                </div>
             </div>
         </div>
     </nav>

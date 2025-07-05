@@ -92,7 +92,6 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <form id="deleteForm" method="post" style="display: inline;">
-                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ record.id) }}">
                     <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
             </div>

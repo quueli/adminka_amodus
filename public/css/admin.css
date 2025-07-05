@@ -6,6 +6,48 @@ body {
 
 .navbar-brand {
     font-weight: bold;
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand-logo {
+    height: 40px;
+    width: auto;
+    margin-right: 10px;
+    border-radius: 4px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.navbar-brand-logo:hover {
+    transform: scale(1.05);
+}
+
+.navbar-brand-logo-right {
+    height: 56px;
+    width: auto;
+    border-radius: 4px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.navbar-brand-logo-right:hover {
+    transform: scale(1.05);
+}
+
+.navbar-brand-logo-container {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.navbar-brand-logo-container:hover {
+    opacity: 0.8;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.navbar-brand-text {
+    font-size: 1.25rem;
+    font-weight: bold;
 }
 
 .card {
@@ -60,6 +102,35 @@ body {
     transition: all 0.15s ease-in-out;
 }
 
+/* Custom green create button styling */
+.btn-success-custom {
+    color: #28a745;
+    background-color: #ffffff;
+    border-color: #28a745;
+    border-width: 2px;
+}
+
+.btn-success-custom:hover {
+    color: #ffffff;
+    background-color: #28a745;
+    border-color: #1e7e34;
+}
+
+.btn-success-custom:focus,
+.btn-success-custom.focus {
+    color: #ffffff;
+    background-color: #28a745;
+    border-color: #1e7e34;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.5);
+}
+
+.btn-success-custom:active,
+.btn-success-custom.active {
+    color: #ffffff;
+    background-color: #1e7e34;
+    border-color: #1c7430;
+}
+
 .card-header {
     background-color: #f8f9fa;
     border-bottom: 1px solid rgba(0, 0, 0, 0.125);
@@ -75,17 +146,46 @@ body {
         display: flex;
         flex-direction: column;
     }
-    
+
     .btn-group .btn {
         margin-right: 0;
         margin-bottom: 2px;
     }
-    
+
     .btn-group .btn:last-child {
         margin-bottom: 0;
     }
-    
+
     .table-responsive {
         font-size: 0.875rem;
+    }
+
+    .navbar-brand-logo {
+        height: 32px;
+        margin-right: 8px;
+    }
+
+    .navbar-brand-logo-right {
+        height: 45px;
+    }
+
+    .navbar-brand-text {
+        font-size: 1.1rem;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 576px) {
+    .navbar-brand-text {
+        font-size: 1rem;
+    }
+
+    .navbar-brand-logo {
+        height: 28px;
+        margin-right: 6px;
+    }
+
+    .navbar-brand-logo-right {
+        height: 39px;
     }
 }
