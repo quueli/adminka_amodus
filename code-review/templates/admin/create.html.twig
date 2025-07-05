@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'create_new_record'|trans }} - {{ 'admin_panel'|trans }}{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-plus"></i> {{ 'create_new_record'|trans }}</h1>
+            <a href="{{ path('admin_index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> {{ 'back_to_list'|trans }}
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{{ 'record_information'|trans }}</h5>
+            </div>
+            <div class="card-body">
+                {{ form_start(form) }}
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form_label(form.color) }}
+                        {{ form_widget(form.color) }}
+                        {{ form_errors(form.color) }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form_label(form.hexColorNumber) }}
+                        {{ form_widget(form.hexColorNumber) }}
+                        {{ form_errors(form.hexColorNumber) }}
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        {{ form_label(form.saturation) }}
+                        {{ form_widget(form.saturation) }}
+                        {{ form_errors(form.saturation) }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        {{ form_label(form.palette) }}
+                        {{ form_widget(form.palette) }}
+                        {{ form_errors(form.palette) }}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a href="{{ path('admin_index') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> {{ 'cancel'|trans }}
+                    </a>
+                    {{ form_widget(form.save) }}
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
