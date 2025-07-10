@@ -1,7 +1,5 @@
-# Подавление предупреждений E_STRICT для разработки
 php_value error_reporting "E_ALL & ~E_DEPRECATED & ~E_STRICT"
 
-# Настройки для Symfony
 DirectoryIndex index.php
 
 <IfModule mod_negotiation.c>
@@ -11,18 +9,15 @@ DirectoryIndex index.php
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Определение переменной окружения для HTTP Authorization header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-    # Перенаправление на front controller (если файл не существует)
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^(.*)$ index.php [QSA,L]
 </IfModule>
 
 <IfModule !mod_rewrite.c>
     <IfModule mod_alias.c>
-        # Когда mod_rewrite недоступен, мы инструктируем пользователя включить его
         RedirectMatch 307 ^/$ /index.php/
     </IfModule>
 </IfModule>

@@ -1,9 +1,7 @@
-# config/routes.yaml
 controllers:
     resource: ../src/Controller/
     type: attribute
 
-# Добавим явные маршруты для отладки
 home:
     path: /
     controller: App\Controller\HomeController::index

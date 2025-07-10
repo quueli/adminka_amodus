@@ -17,6 +17,6 @@ class HomeController extends AbstractController
     #[Route('/test', name: 'test')]
     public function test(): Response
     {
-        return new Response('<h1>Тест работает!</h1><p>Symfony запущен корректно.</p><a href="/admin">Перейти к админ-панели</a>');
+        return new Response('<h1>hello world</h1><p>Symfony запущен корректно.</p><a href="/admin">Перейти к админ-панели</a>');
     }
 }

@@ -74,7 +74,7 @@ class AdminController extends AbstractController
     #[Route('/admin/delete/{id}', name: 'admin_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function delete(Request $request, ColorRecord $record): Response
     {
-        // Remove CSRF validation since symfony/security-csrf is not available
+        // не получилось использовать CSRF метод
         $this->entityManager->remove($record);
         $this->entityManager->flush();
 

@@ -1,6 +1,6 @@
 {
     "name": "admin-panel/symfony-app",
-    "description": "Symfony Admin Panel Application",
+    "description": "Adminka on Symfony",
     "type": "project",
     "license": "MIT",
     "minimum-stability": "stable",
