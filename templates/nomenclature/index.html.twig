@@ -1,0 +1,301 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'nomenclature_management'|trans }} - {{ 'admin_panel'|trans }}{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-tags"></i> {{ 'nomenclature_management'|trans }}</h1>
+</div>
+
+<ul class="nav nav-tabs" id="nomenclatureTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="characteristics-tab" data-bs-toggle="tab" data-bs-target="#characteristics" type="button" role="tab">
+            {{ 'characteristics'|trans }}
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="available-values-tab" data-bs-toggle="tab" data-bs-target="#available-values" type="button" role="tab">
+            {{ 'available_values'|trans }}
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="nomenclatures-tab" data-bs-toggle="tab" data-bs-target="#nomenclatures" type="button" role="tab">
+            {{ 'nomenclatures'|trans }}
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="nomenclatureTabContent">
+    <div class="tab-pane fade show active" id="characteristics" role="tabpanel">
+        <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
+            <h3>{{ 'characteristics'|trans }}</h3>
+            <a href="{{ path('nomenclature_characteristic_create') }}" class="btn btn-success-custom">
+                <i class="fas fa-plus"></i> {{ 'add_characteristic'|trans }}
+            </a>
+        </div>
+
+        {% if characteristics|length > 0 %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ 'all_characteristics'|trans }} ({{ characteristics|length }} {{ 'total_records'|trans }})</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>{{ 'id'|trans }}</th>
+                                    <th>{{ 'characteristic_name'|trans }}</th>
+                                    <th>{{ 'created_at'|trans }}</th>
+                                    <th>{{ 'actions'|trans }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for characteristic in characteristics %}
+                                <tr>
+                                    <td><strong>{{ characteristic.id }}</strong></td>
+                                    <td>{{ characteristic.name|default('-') }}</td>
+                                    <td>{{ characteristic.createdAt|date('Y-m-d H:i') }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ path('nomenclature_characteristic_edit', {'id': characteristic.id}) }}"
+                                               class="btn btn-sm btn-warning" title="{{ 'edit'|trans }}">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-danger"
+                                                    onclick="confirmDeleteCharacteristic({{ characteristic.id }})" title="{{ 'delete'|trans }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle"></i>
+                {{ 'no_characteristics_found'|trans }}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="tab-pane fade" id="available-values" role="tabpanel">
+        <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
+            <h3>{{ 'available_values'|trans }}</h3>
+            <a href="{{ path('nomenclature_available_value_create') }}" class="btn btn-success-custom">
+                <i class="fas fa-plus"></i> {{ 'add_available_value'|trans }}
+            </a>
+        </div>
+
+        {% if availableValues|length > 0 %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ 'all_available_values'|trans }} ({{ availableValues|length }} {{ 'total_records'|trans }})</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>{{ 'id'|trans }}</th>
+                                    <th>{{ 'characteristic'|trans }}</th>
+                                    <th>{{ 'available_value'|trans }}</th>
+                                    <th>{{ 'created_at'|trans }}</th>
+                                    <th>{{ 'actions'|trans }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for availableValue in availableValues %}
+                                <tr>
+                                    <td><strong>{{ availableValue.id }}</strong></td>
+                                    <td>{{ availableValue.characteristic.name|default('-') }}</td>
+                                    <td>{{ availableValue.value|default('-') }}</td>
+                                    <td>{{ availableValue.createdAt|date('Y-m-d H:i') }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ path('nomenclature_available_value_edit', {'id': availableValue.id}) }}"
+                                               class="btn btn-sm btn-warning" title="{{ 'edit'|trans }}">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-danger"
+                                                    onclick="confirmDeleteAvailableValue({{ availableValue.id }})" title="{{ 'delete'|trans }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle"></i>
+                {{ 'no_available_values_found'|trans }}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="tab-pane fade" id="nomenclatures" role="tabpanel">
+        <div class="d-flex justify-content-between align-items-center mb-3 mt-3">
+            <h3>{{ 'nomenclatures'|trans }}</h3>
+            <a href="{{ path('nomenclature_create') }}" class="btn btn-success-custom">
+                <i class="fas fa-plus"></i> {{ 'add_nomenclature'|trans }}
+            </a>
+        </div>
+
+        {% if nomenclatures|length > 0 %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ 'all_nomenclatures'|trans }} ({{ nomenclatures|length }} {{ 'total_records'|trans }})</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover mb-0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>{{ 'id'|trans }}</th>
+                                    <th>{{ 'nomenclature_name'|trans }}</th>
+                                    <th>{{ 'characteristics'|trans }}</th>
+                                    <th>{{ 'available_values'|trans }}</th>
+                                    <th>{{ 'created_at'|trans }}</th>
+                                    <th>{{ 'actions'|trans }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for nomenclature in nomenclatures %}
+                                <tr>
+                                    <td><strong>{{ nomenclature.id }}</strong></td>
+                                    <td>{{ nomenclature.nomenclatureName|default('-') }}</td>
+                                    <td>
+                                        {% set characteristics = nomenclature.characteristics %}
+                                        {% if characteristics|length > 0 %}
+                                            {% for characteristic in characteristics %}
+                                                <span class="badge bg-primary me-1">{{ characteristic.name }}</span>
+                                            {% endfor %}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% set availableValues = nomenclature.characteristicAvailableValues %}
+                                        {% if availableValues|length > 0 %}
+                                            {% for value in availableValues %}
+                                                <span class="badge bg-secondary me-1" title="{{ value.characteristic.name }}">{{ value.value }}</span>
+                                            {% endfor %}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ nomenclature.createdAt|date('Y-m-d H:i') }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ path('nomenclature_edit', {'id': nomenclature.id}) }}"
+                                               class="btn btn-sm btn-warning" title="{{ 'edit'|trans }}">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-danger"
+                                                    onclick="confirmDeleteNomenclature({{ nomenclature.id }})" title="{{ 'delete'|trans }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle"></i>
+                {{ 'no_nomenclatures_found'|trans }}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="modal fade" id="deleteCharacteristicModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ 'confirm_deletion'|trans }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                {{ 'are_you_sure_delete_characteristic'|trans }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'cancel'|trans }}</button>
+                <form id="deleteCharacteristicForm" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">{{ 'delete'|trans }}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteAvailableValueModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ 'confirm_deletion'|trans }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                {{ 'are_you_sure_delete_available_value'|trans }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'cancel'|trans }}</button>
+                <form id="deleteAvailableValueForm" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">{{ 'delete'|trans }}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteNomenclatureModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ 'confirm_deletion'|trans }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                {{ 'are_you_sure_delete_nomenclature'|trans }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'cancel'|trans }}</button>
+                <form id="deleteNomenclatureForm" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">{{ 'delete'|trans }}</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDeleteCharacteristic(id) {
+    document.getElementById('deleteCharacteristicForm').action = '/nomenclature/characteristic/delete/' + id;
+    new bootstrap.Modal(document.getElementById('deleteCharacteristicModal')).show();
+}
+
+function confirmDeleteAvailableValue(id) {
+    document.getElementById('deleteAvailableValueForm').action = '/nomenclature/available-value/delete/' + id;
+    new bootstrap.Modal(document.getElementById('deleteAvailableValueModal')).show();
+}
+
+function confirmDeleteNomenclature(id) {
+    document.getElementById('deleteNomenclatureForm').action = '/nomenclature/delete/' + id;
+    new bootstrap.Modal(document.getElementById('deleteNomenclatureModal')).show();
+}
+</script>
+{% endblock %}

@@ -36,3 +36,65 @@ admin_delete:
     methods: [POST]
     requirements:
         id: '\d+'
+
+# Nomenclature routes
+nomenclature_index:
+    path: /nomenclature
+    controller: App\Controller\NomenclatureController::index
+
+nomenclature_characteristic_create:
+    path: /nomenclature/characteristic/create
+    controller: App\Controller\NomenclatureController::createCharacteristic
+
+nomenclature_characteristic_edit:
+    path: /nomenclature/characteristic/edit/{id}
+    controller: App\Controller\NomenclatureController::editCharacteristic
+    requirements:
+        id: '\d+'
+
+nomenclature_characteristic_delete:
+    path: /nomenclature/characteristic/delete/{id}
+    controller: App\Controller\NomenclatureController::deleteCharacteristic
+    methods: [POST]
+    requirements:
+        id: '\d+'
+
+nomenclature_available_value_create:
+    path: /nomenclature/available-value/create
+    controller: App\Controller\NomenclatureController::createAvailableValue
+
+nomenclature_available_value_edit:
+    path: /nomenclature/available-value/edit/{id}
+    controller: App\Controller\NomenclatureController::editAvailableValue
+    requirements:
+        id: '\d+'
+
+nomenclature_available_value_delete:
+    path: /nomenclature/available-value/delete/{id}
+    controller: App\Controller\NomenclatureController::deleteAvailableValue
+    methods: [POST]
+    requirements:
+        id: '\d+'
+
+nomenclature_create:
+    path: /nomenclature/create
+    controller: App\Controller\NomenclatureController::createNomenclature
+
+nomenclature_edit:
+    path: /nomenclature/edit/{id}
+    controller: App\Controller\NomenclatureController::editNomenclature
+    requirements:
+        id: '\d+'
+
+nomenclature_delete:
+    path: /nomenclature/delete/{id}
+    controller: App\Controller\NomenclatureController::deleteNomenclature
+    methods: [POST]
+    requirements:
+        id: '\d+'
+
+api_available_values:
+    path: /api/available-values/{characteristicId}
+    controller: App\Controller\NomenclatureController::getAvailableValues
+    requirements:
+        characteristicId: '\d+'
