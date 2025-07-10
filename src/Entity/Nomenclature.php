@@ -76,7 +76,6 @@ class Nomenclature
     public function removeNomenclatureCharacteristicValue(NomenclatureCharacteristicValue $nomenclatureCharacteristicValue): static
     {
         if ($this->nomenclatureCharacteristicValues->removeElement($nomenclatureCharacteristicValue)) {
-            // set the owning side to null (unless already changed)
             if ($nomenclatureCharacteristicValue->getNomenclature() === $this) {
                 $nomenclatureCharacteristicValue->setNomenclature(null);
             }

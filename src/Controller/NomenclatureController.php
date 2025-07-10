@@ -162,13 +162,10 @@ class NomenclatureController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Сохраняем номенклатуру
             $this->entityManager->persist($nomenclature);
 
-            // Получаем выбранные доступные значения из формы
             $selectedValues = $form->get('characteristicAvailableValues')->getData();
 
-            // Создаем связи между номенклатурой и доступными значениями
             foreach ($selectedValues as $availableValue) {
                 $nomenclatureCharacteristicValue = new NomenclatureCharacteristicValue();
                 $nomenclatureCharacteristicValue->setNomenclature($nomenclature);
@@ -194,22 +191,18 @@ class NomenclatureController extends AbstractController
     {
         $form = $this->createForm(NomenclatureMultipleType::class, $nomenclature);
 
-        // Предзаполняем форму текущими доступными значениями
         $currentValues = $nomenclature->getCharacteristicAvailableValues();
         $form->get('characteristicAvailableValues')->setData($currentValues);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Удаляем все существующие связи
             foreach ($nomenclature->getNomenclatureCharacteristicValues() as $ncv) {
                 $this->entityManager->remove($ncv);
             }
 
-            // Получаем новые выбранные доступные значения из формы
             $selectedValues = $form->get('characteristicAvailableValues')->getData();
 
-            // Создаем новые связи
             foreach ($selectedValues as $availableValue) {
                 $nomenclatureCharacteristicValue = new NomenclatureCharacteristicValue();
                 $nomenclatureCharacteristicValue->setNomenclature($nomenclature);

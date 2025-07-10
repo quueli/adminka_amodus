@@ -107,5 +107,4 @@ are_you_sure_delete_characteristic: 'Вы уверены, что хотите у
 are_you_sure_delete_available_value: 'Вы уверены, что хотите удалить это доступное значение? Это действие нельзя отменить.'
 are_you_sure_delete_nomenclature: 'Вы уверены, что хотите удалить эту номенклатуру? Это действие нельзя отменить.'
 
-# Multiple selection translations
 select_multiple_values_help: 'Удерживайте Ctrl (Cmd на Mac) для выбора нескольких значений'
