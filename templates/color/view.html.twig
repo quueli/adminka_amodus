@@ -72,24 +72,5 @@
     </div>
 </div>
 
-{% block javascript %}
-    <script>
-    function confirmDelete(id, itemName, deleteUrl) {
-        if (confirm('{{ 'are_you_sure_delete_color'|trans }} "' + itemName + '"? {{ 'action_cannot_be_undone'|trans }}')) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = deleteUrl;
-
-            const csrfToken = document.createElement('input');
-            csrfToken.type = 'hidden';
-            csrfToken.name = '_token';
-            csrfToken.value = '{{ csrf_token('delete' ~ record.id) }}';
-            form.appendChild(csrfToken);
-
-            document.body.appendChild(form);
-            form.submit();
-        }
-    }
-    </script>
-{% endblock %}
+{% block javascript %}{% endblock %}
 {% endblock %}

@@ -49,10 +49,14 @@
             </a>
         {% endif %}
         {% if delete_route %}
-            <button type="button" class="btn btn-sm btn-outline-danger" 
-                    onclick="confirmDelete({{ item_id }}, '{{ item_name|default('item') }}', '{{ path(delete_route, {'id': item_id}) }}')">
-                <i class="fas fa-trash"></i> {{ 'delete'|trans }}
-            </button>
+            <form method="post" action="{{ path(delete_route, {'id': item_id}) }}" style="display: inline;">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ item_id) }}">
+                <button type="button" class="btn btn-sm btn-outline-danger"
+                        data-delete-confirm
+                        data-delete-item="{{ item_name|default('этот элемент') }}">
+                    <i class="fas fa-trash"></i> {{ 'delete'|trans }}
+                </button>
+            </form>
         {% endif %}
     </div>
 {% endmacro %}

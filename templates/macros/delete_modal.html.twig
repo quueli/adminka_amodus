@@ -1,0 +1,78 @@
+{# Delete Confirmation Modal Macro #}
+{% macro delete_confirmation_modal() %}
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title text-danger" id="deleteConfirmModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {{ 'confirm_deletion'|trans }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'close'|trans }}"></button>
+            </div>
+            <div class="modal-body pt-2">
+                <div class="alert alert-warning border-0 bg-light">
+                    <p class="mb-2">
+                        <strong>{{ 'are_you_sure_delete'|trans }}</strong>
+                    </p>
+                    <p class="mb-0 text-muted" id="deleteItemName">
+                        <!-- Item name will be inserted here by JavaScript -->
+                    </p>
+                </div>
+                <p class="text-muted small mb-0">
+                    {{ 'delete_action_irreversible'|trans }}
+                </p>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    {{ 'cancel'|trans }}
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash me-1"></i>
+                    {{ 'delete'|trans }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const deleteItemName = document.getElementById('deleteItemName');
+    let currentDeleteForm = null;
+
+    // Function to show delete confirmation modal
+    window.showDeleteConfirmation = function(itemName, form) {
+        deleteItemName.textContent = itemName;
+        currentDeleteForm = form;
+        deleteModal.show();
+    };
+
+    // Handle confirm delete button click
+    confirmDeleteBtn.addEventListener('click', function() {
+        if (currentDeleteForm) {
+            currentDeleteForm.submit();
+        }
+        deleteModal.hide();
+    });
+
+    // Intercept all delete form submissions
+    document.addEventListener('click', function(e) {
+        const deleteBtn = e.target.closest('[data-delete-confirm]');
+        if (deleteBtn) {
+            e.preventDefault();
+            const form = deleteBtn.closest('form');
+            const itemName = deleteBtn.getAttribute('data-delete-item') || '{{ 'this_item'|trans }}';
+            
+            if (form) {
+                showDeleteConfirmation(itemName, form);
+            }
+        }
+    });
+});
+</script>
+{% endmacro %}
