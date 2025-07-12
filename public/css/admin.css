@@ -184,3 +184,55 @@ body {
         height: 39px;
     }
 }
+
+/* Dynamic nomenclature table styles */
+.nomenclature-table {
+    min-width: 100%;
+}
+
+.nomenclature-table th {
+    white-space: nowrap;
+    vertical-align: middle;
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 12px 8px;
+}
+
+.nomenclature-table td {
+    vertical-align: middle;
+    padding: 10px 8px;
+    font-size: 0.875rem;
+}
+
+.nomenclature-table .characteristic-cell {
+    max-width: 120px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.nomenclature-table .characteristic-cell .badge {
+    font-size: 0.75rem;
+    margin-bottom: 2px;
+}
+
+.nomenclature-table .text-muted {
+    font-style: italic;
+    color: #6c757d !important;
+}
+
+.nomenclature-table .btn-group .btn {
+    padding: 0.25rem 0.5rem;
+}
+
+/* Additional responsive adjustments for dynamic table */
+@media (max-width: 768px) {
+    .nomenclature-table th,
+    .nomenclature-table td {
+        padding: 8px 6px;
+        font-size: 0.8rem;
+    }
+
+    .nomenclature-table .characteristic-cell {
+        max-width: 100px;
+    }
+}

@@ -26,22 +26,58 @@ class NomenclatureController extends AbstractController
     #[Route('/nomenclature', name: 'nomenclature_index')]
     public function index(): Response
     {
-        $characteristics = $this->entityManager
+        // Получаем все характеристики для создания динамических столбцов
+        $allCharacteristics = $this->entityManager
             ->getRepository(Characteristic::class)
-            ->findBy([], ['id' => 'DESC']);
+            ->findBy([], ['name' => 'ASC']);
 
+        // Получаем все доступные значения для форм создания
         $availableValues = $this->entityManager
             ->getRepository(CharacteristicAvailableValue::class)
             ->findBy([], ['id' => 'DESC']);
 
+        // Получаем номенклатуры с предзагруженными связями для оптимизации
         $nomenclatures = $this->entityManager
-            ->getRepository(Nomenclature::class)
-            ->findBy([], ['id' => 'DESC']);
+            ->createQueryBuilder()
+            ->select('n', 'ncv', 'cav', 'c')
+            ->from(Nomenclature::class, 'n')
+            ->leftJoin('n.nomenclatureCharacteristicValues', 'ncv')
+            ->leftJoin('ncv.characteristicAvailableValue', 'cav')
+            ->leftJoin('cav.characteristic', 'c')
+            ->orderBy('n.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        // Создаем структуру данных для удобного отображения в шаблоне
+        $nomenclatureData = [];
+        foreach ($nomenclatures as $nomenclature) {
+            $nomenclatureId = $nomenclature->getId();
+
+            if (!isset($nomenclatureData[$nomenclatureId])) {
+                $nomenclatureData[$nomenclatureId] = [
+                    'nomenclature' => $nomenclature,
+                    'characteristics' => []
+                ];
+            }
+
+            // Группируем значения по характеристикам
+            foreach ($nomenclature->getNomenclatureCharacteristicValues() as $ncv) {
+                $characteristic = $ncv->getCharacteristicAvailableValue()->getCharacteristic();
+                $characteristicId = $characteristic->getId();
+
+                if (!isset($nomenclatureData[$nomenclatureId]['characteristics'][$characteristicId])) {
+                    $nomenclatureData[$nomenclatureId]['characteristics'][$characteristicId] = [];
+                }
+
+                $nomenclatureData[$nomenclatureId]['characteristics'][$characteristicId][] =
+                    $ncv->getCharacteristicAvailableValue()->getValue();
+            }
+        }
 
         return $this->render('nomenclature/index.html.twig', [
-            'characteristics' => $characteristics,
+            'allCharacteristics' => $allCharacteristics,
             'availableValues' => $availableValues,
-            'nomenclatures' => $nomenclatures,
+            'nomenclatureData' => $nomenclatureData,
         ]);
     }
 
