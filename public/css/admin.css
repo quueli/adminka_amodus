@@ -185,7 +185,6 @@ body {
     }
 }
 
-/* Dynamic nomenclature table styles */
 .nomenclature-table {
     min-width: 100%;
 }
@@ -224,7 +223,6 @@ body {
     padding: 0.25rem 0.5rem;
 }
 
-/* Additional responsive adjustments for dynamic table */
 @media (max-width: 768px) {
     .nomenclature-table th,
     .nomenclature-table td {
@@ -237,7 +235,6 @@ body {
     }
 }
 
-/* Characteristic groups styling */
 .characteristics-container {
     max-height: 600px;
     overflow-y: auto;
@@ -294,7 +291,6 @@ body {
     font-weight: 500;
 }
 
-/* Responsive adjustments for characteristic groups */
 @media (max-width: 768px) {
     .characteristics-container {
         max-height: 500px;

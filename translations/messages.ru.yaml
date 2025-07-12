@@ -109,7 +109,6 @@ are_you_sure_delete_nomenclature: 'Вы уверены, что хотите уд
 
 select_multiple_values_help: 'Удерживайте Ctrl (Cmd на Mac) для выбора нескольких значений'
 
-# Improved interface translations
 select_characteristics: 'Выберите характеристики'
 available: 'доступно'
 select_all: 'Выбрать все'

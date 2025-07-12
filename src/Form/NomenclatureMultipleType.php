@@ -35,7 +35,6 @@ class NomenclatureMultipleType extends AbstractType
                 'required' => true,
             ]);
 
-        // Получаем все характеристики с их доступными значениями
         $characteristics = $this->entityManager
             ->getRepository(Characteristic::class)
             ->createQueryBuilder('c')
@@ -46,7 +45,6 @@ class NomenclatureMultipleType extends AbstractType
             ->getQuery()
             ->getResult();
 
-        // Создаем поля для каждой характеристики
         foreach ($characteristics as $characteristic) {
             $availableValues = $characteristic->getAvailableValues();
 

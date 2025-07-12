@@ -26,17 +26,14 @@ class NomenclatureController extends AbstractController
     #[Route('/nomenclature', name: 'nomenclature_index')]
     public function index(): Response
     {
-        // Получаем все характеристики для создания динамических столбцов
         $allCharacteristics = $this->entityManager
             ->getRepository(Characteristic::class)
             ->findBy([], ['name' => 'ASC']);
 
-        // Получаем все доступные значения для форм создания
         $availableValues = $this->entityManager
             ->getRepository(CharacteristicAvailableValue::class)
             ->findBy([], ['id' => 'DESC']);
 
-        // Получаем номенклатуры с предзагруженными связями для оптимизации
         $nomenclatures = $this->entityManager
             ->createQueryBuilder()
             ->select('n', 'ncv', 'cav', 'c')
@@ -48,7 +45,6 @@ class NomenclatureController extends AbstractController
             ->getQuery()
             ->getResult();
 
-        // Создаем структуру данных для удобного отображения в шаблоне
         $nomenclatureData = [];
         foreach ($nomenclatures as $nomenclature) {
             $nomenclatureId = $nomenclature->getId();
@@ -60,7 +56,6 @@ class NomenclatureController extends AbstractController
                 ];
             }
 
-            // Группируем значения по характеристикам
             foreach ($nomenclature->getNomenclatureCharacteristicValues() as $ncv) {
                 $characteristic = $ncv->getCharacteristicAvailableValue()->getCharacteristic();
                 $characteristicId = $characteristic->getId();
@@ -198,13 +193,10 @@ class NomenclatureController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Сохраняем номенклатуру
             $this->entityManager->persist($nomenclature);
 
-            // Получаем все характеристики для обработки выбранных значений
             $characteristics = $this->entityManager->getRepository(Characteristic::class)->findAll();
 
-            // Обрабатываем выбранные значения из каждой группы характеристик
             foreach ($characteristics as $characteristic) {
                 $fieldName = 'characteristic_' . $characteristic->getId();
 
@@ -236,7 +228,6 @@ class NomenclatureController extends AbstractController
             return $this->redirectToRoute('nomenclature_index');
         }
 
-        // Получаем характеристики для передачи в шаблон
         $characteristics = $this->entityManager
             ->getRepository(Characteristic::class)
             ->createQueryBuilder('c')
@@ -257,7 +248,6 @@ class NomenclatureController extends AbstractController
     {
         $form = $this->createForm(NomenclatureMultipleType::class, $nomenclature);
 
-        // Получаем характеристики для передачи в шаблон
         $characteristics = $this->entityManager
             ->getRepository(Characteristic::class)
             ->createQueryBuilder('c')
@@ -267,7 +257,6 @@ class NomenclatureController extends AbstractController
             ->getQuery()
             ->getResult();
 
-        // Предзаполняем форму текущими значениями
         $currentValues = $nomenclature->getCharacteristicAvailableValues();
         $currentValuesByCharacteristic = [];
 
@@ -279,7 +268,6 @@ class NomenclatureController extends AbstractController
             $currentValuesByCharacteristic[$characteristicId][] = $value->getId();
         }
 
-        // Устанавливаем текущие значения в форму
         foreach ($characteristics as $characteristic) {
             $fieldName = 'characteristic_' . $characteristic->getId();
             if ($form->has($fieldName) && isset($currentValuesByCharacteristic[$characteristic->getId()])) {
@@ -290,12 +278,10 @@ class NomenclatureController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Удаляем все существующие связи
             foreach ($nomenclature->getNomenclatureCharacteristicValues() as $ncv) {
                 $this->entityManager->remove($ncv);
             }
 
-            // Обрабатываем выбранные значения из каждой группы характеристик
             foreach ($characteristics as $characteristic) {
                 $fieldName = 'characteristic_' . $characteristic->getId();
 

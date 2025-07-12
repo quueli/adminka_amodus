@@ -99,7 +99,6 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Функция для выбора всех значений в группе
     document.querySelectorAll('.select-all-btn').forEach(button => {
         button.addEventListener('click', function() {
             const characteristicId = this.getAttribute('data-characteristic');
@@ -110,7 +109,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Функция для снятия всех значений в группе
     document.querySelectorAll('.clear-all-btn').forEach(button => {
         button.addEventListener('click', function() {
             const characteristicId = this.getAttribute('data-characteristic');
