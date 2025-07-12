@@ -106,6 +106,12 @@ nomenclature_create:
     path: /nomenclature/create
     controller: App\Controller\NomenclatureController::createNomenclature
 
+nomenclature_show:
+    path: /nomenclature/show/{id}
+    controller: App\Controller\NomenclatureController::showNomenclature
+    requirements:
+        id: '\d+'
+
 nomenclature_edit:
     path: /nomenclature/edit/{id}
     controller: App\Controller\NomenclatureController::editNomenclature

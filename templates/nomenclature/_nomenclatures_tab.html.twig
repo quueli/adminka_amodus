@@ -42,7 +42,7 @@
                                 {% endfor %}
                                 <td>{{ nomenclature.createdAt|date('Y-m-d H:i') }}</td>
                                 <td>
-                                    {{ form_macros.action_buttons('nomenclature_edit', null, 'nomenclature_delete', nomenclature.id, nomenclature.nomenclatureName) }}
+                                    {{ form_macros.action_buttons('nomenclature_edit', 'nomenclature_show', 'nomenclature_delete', nomenclature.id, nomenclature.nomenclatureName) }}
                                 </td>
                             </tr>
                         {% endfor %}

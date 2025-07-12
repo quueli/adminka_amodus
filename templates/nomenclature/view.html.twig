@@ -1,0 +1,137 @@
+{% extends 'base.html.twig' %}
+
+{% import 'macros/form_macros.html.twig' as form_macros %}
+
+{% block title %}{{ 'view_nomenclature'|trans }} #{{ nomenclature.id }} - {{ 'admin_panel'|trans }}{% endblock %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-10 mx-auto">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-eye"></i> {{ 'view_nomenclature'|trans }} #{{ nomenclature.id }}</h1>
+            <div>
+                <a href="{{ path('nomenclature_edit', {'id': nomenclature.id}) }}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> {{ 'edit'|trans }}
+                </a>
+                <a href="{{ path('nomenclature_index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> {{ 'back_to_nomenclature'|trans }}
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{{ 'nomenclature_information'|trans }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <strong>{{ 'nomenclature_name'|trans }}:</strong>
+                        <div class="mt-1">{{ nomenclature.nomenclatureName|default('-') }}</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>{{ 'id'|trans }}:</strong>
+                        <div class="mt-1">{{ nomenclature.id }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if nomenclature.nomenclatureCharacteristicValues|length > 0 %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ 'characteristics_and_values'|trans }}</h5>
+                </div>
+                <div class="card-body">
+
+                    <div class="row">
+                        {% set characteristicsData = {} %}
+
+                        {# Group characteristic values by characteristic type to avoid duplicate cards #}
+                        {% for ncv in nomenclature.nomenclatureCharacteristicValues %}
+                            {% if ncv.characteristicAvailableValue and ncv.characteristicAvailableValue.characteristic %}
+                                {% set characteristic = ncv.characteristicAvailableValue.characteristic %}
+                                {% set characteristicId = 'char_' ~ characteristic.id %}
+                                {% set value = ncv.characteristicAvailableValue.value %}
+
+                                {% if characteristicsData[characteristicId] is not defined %}
+                                    {% set characteristicsData = characteristicsData|merge({(characteristicId): {
+                                        'name': characteristic.name,
+                                        'values': [value]
+                                    }}) %}
+                                {% else %}
+                                    {% set currentValues = characteristicsData[characteristicId].values %}
+                                    {% if value not in currentValues %}
+                                        {% set characteristicsData = characteristicsData|merge({(characteristicId): {
+                                            'name': characteristic.name,
+                                            'values': currentValues|merge([value])
+                                        }}) %}
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+
+                        {% for characteristicId, data in characteristicsData %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-light">
+                                    <div class="card-header bg-light py-2">
+                                        <h6 class="mb-0">{{ data.name }}</h6>
+                                    </div>
+                                    <div class="card-body py-2">
+                                        {% for value in data.values %}
+                                            <span class="badge bg-primary me-1 mb-1">{{ value }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="card mt-3">
+                <div class="card-body text-center">
+                    <i class="fas fa-info-circle text-muted"></i>
+                    <p class="text-muted mb-0">{{ 'no_characteristics_assigned'|trans }}</p>
+                </div>
+            </div>
+        {% endif %}
+
+        {{ form_macros.metadata_card('nomenclature_metadata', {
+            'id': nomenclature.id,
+            'created_at': nomenclature.createdAt|date('Y-m-d H:i:s'),
+            'last_updated': nomenclature.updatedAt|date('Y-m-d H:i:s')
+        }) }}
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">{{ 'actions'|trans }}</h6>
+            </div>
+            <div class="card-body">
+                {{ form_macros.action_buttons('nomenclature_edit', null, 'nomenclature_delete', nomenclature.id, nomenclature.nomenclatureName) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascript %}
+    <script>
+    function confirmDelete(id, itemName, deleteUrl) {
+        if (confirm('{{ 'are_you_sure_delete_nomenclature'|trans }} "' + itemName + '"? {{ 'action_cannot_be_undone'|trans }}')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = deleteUrl;
+            
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = '_token';
+            csrfToken.value = '{{ csrf_token('delete' ~ nomenclature.id) }}';
+            form.appendChild(csrfToken);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+    </script>
+{% endblock %}
+{% endblock %}

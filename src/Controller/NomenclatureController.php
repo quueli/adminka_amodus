@@ -14,7 +14,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Attribute\Route;
 
 class NomenclatureController extends AbstractController
 {
@@ -22,7 +21,6 @@ class NomenclatureController extends AbstractController
         private EntityManagerInterface $entityManager
     ) {}
 
-    #[Route('/nomenclature', name: 'nomenclature_index')]
     public function index(): Response
     {
         $allCharacteristics = $this->entityManager
@@ -77,7 +75,31 @@ class NomenclatureController extends AbstractController
         ]);
     }
 
-    #[Route('/nomenclature/characteristic/create', name: 'nomenclature_characteristic_create')]
+
+
+    public function showNomenclature(int $id): Response
+    {
+        $nomenclature = $this->entityManager
+            ->createQueryBuilder()
+            ->select('n', 'ncv', 'cav', 'c')
+            ->from(Nomenclature::class, 'n')
+            ->leftJoin('n.nomenclatureCharacteristicValues', 'ncv')
+            ->leftJoin('ncv.characteristicAvailableValue', 'cav')
+            ->leftJoin('cav.characteristic', 'c')
+            ->where('n.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+        if (!$nomenclature) {
+            throw $this->createNotFoundException('Nomenclature not found');
+        }
+
+        return $this->render('nomenclature/view.html.twig', [
+            'nomenclature' => $nomenclature,
+        ]);
+    }
+
     public function createCharacteristic(Request $request): Response
     {
         $characteristic = new Characteristic();
@@ -99,7 +121,6 @@ class NomenclatureController extends AbstractController
         ]);
     }
 
-    #[Route('/nomenclature/characteristic/edit/{id}', name: 'nomenclature_characteristic_edit', requirements: ['id' => '\d+'])]
     public function editCharacteristic(Request $request, Characteristic $characteristic): Response
     {
         $form = $this->createForm(CharacteristicType::class, $characteristic);
@@ -120,7 +141,6 @@ class NomenclatureController extends AbstractController
         ]);
     }
 
-    #[Route('/nomenclature/characteristic/delete/{id}', name: 'nomenclature_characteristic_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function deleteCharacteristic(Request $request, Characteristic $characteristic): Response
     {
         $this->entityManager->remove($characteristic);
@@ -131,7 +151,6 @@ class NomenclatureController extends AbstractController
         return $this->redirectToRoute('nomenclature_index');
     }
 
-    #[Route('/nomenclature/available-value/create', name: 'nomenclature_available_value_create')]
     public function createAvailableValue(Request $request): Response
     {
         $availableValue = new CharacteristicAvailableValue();
@@ -153,7 +172,6 @@ class NomenclatureController extends AbstractController
         ]);
     }
 
-    #[Route('/nomenclature/available-value/edit/{id}', name: 'nomenclature_available_value_edit', requirements: ['id' => '\d+'])]
     public function editAvailableValue(Request $request, CharacteristicAvailableValue $availableValue): Response
     {
         $form = $this->createForm(CharacteristicAvailableValueType::class, $availableValue);
@@ -174,7 +192,6 @@ class NomenclatureController extends AbstractController
         ]);
     }
 
-    #[Route('/nomenclature/available-value/delete/{id}', name: 'nomenclature_available_value_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function deleteAvailableValue(Request $request, CharacteristicAvailableValue $availableValue): Response
     {
         $this->entityManager->remove($availableValue);
@@ -185,7 +202,6 @@ class NomenclatureController extends AbstractController
         return $this->redirectToRoute('nomenclature_index');
     }
 
-    #[Route('/nomenclature/create', name: 'nomenclature_create')]
     public function createNomenclature(Request $request): Response
     {
         $nomenclature = new Nomenclature();
@@ -248,7 +264,8 @@ class NomenclatureController extends AbstractController
         ]);
     }
 
-    #[Route('/nomenclature/edit/{id}', name: 'nomenclature_edit', requirements: ['id' => '\d+'])]
+
+
     public function editNomenclature(Request $request, Nomenclature $nomenclature): Response
     {
         $form = $this->createForm(NomenclatureMultipleType::class, $nomenclature);
@@ -311,7 +328,6 @@ class NomenclatureController extends AbstractController
         ]);
     }
 
-    #[Route('/nomenclature/delete/{id}', name: 'nomenclature_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function deleteNomenclature(Request $request, Nomenclature $nomenclature): Response
     {
         $this->entityManager->remove($nomenclature);
@@ -322,7 +338,6 @@ class NomenclatureController extends AbstractController
         return $this->redirectToRoute('nomenclature_index');
     }
 
-    #[Route('/api/available-values/{characteristicId}', name: 'api_available_values', requirements: ['characteristicId' => '\d+'])]
     public function getAvailableValues(int $characteristicId): JsonResponse
     {
         $availableValues = $this->entityManager

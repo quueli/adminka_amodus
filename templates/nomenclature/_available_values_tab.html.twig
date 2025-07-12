@@ -15,17 +15,50 @@
     } %}
     
     {% set table_rows = [] %}
+    {% set processedCharacteristics = [] %}
+
+    {# Group values by characteristics to avoid duplicate rows #}
     {% for value in availableValues %}
-        {% set table_rows = table_rows|merge([{
-            'id': value.id,
-            'name': value.value,
-            'cells': [
-                '<strong>' ~ value.id ~ '</strong>',
-                '<span class="badge bg-info">' ~ value.characteristic.name ~ '</span>',
-                value.value,
-                value.createdAt|date('Y-m-d H:i')
-            ]
-        }]) %}
+        {% set characteristicId = value.characteristic.id %}
+
+        {% if characteristicId not in processedCharacteristics %}
+            {% set processedCharacteristics = processedCharacteristics|merge([characteristicId]) %}
+
+            {% set characteristicValues = [] %}
+            {% set characteristicIds = [] %}
+            {% set firstCreatedAt = value.createdAt %}
+
+            {% for checkValue in availableValues %}
+                {% if checkValue.characteristic.id == characteristicId %}
+                    {% set characteristicValues = characteristicValues|merge([checkValue.value]) %}
+                    {% set characteristicIds = characteristicIds|merge([checkValue.id]) %}
+                {% endif %}
+            {% endfor %}
+
+            {% set valuesHtml = '' %}
+            {% for val in characteristicValues %}
+                {% set valuesHtml = valuesHtml ~ '<span class="badge bg-primary me-1 mb-1">' ~ val ~ '</span>' %}
+            {% endfor %}
+
+            {% set idsHtml = '' %}
+            {% for id in characteristicIds %}
+                {% set idsHtml = idsHtml ~ '<strong>' ~ id ~ '</strong>' %}
+                {% if not loop.last %}
+                    {% set idsHtml = idsHtml ~ ', ' %}
+                {% endif %}
+            {% endfor %}
+
+            {% set table_rows = table_rows|merge([{
+                'id': value.characteristic.id,
+                'name': value.characteristic.name,
+                'cells': [
+                    idsHtml,
+                    '<span class="badge bg-info">' ~ value.characteristic.name ~ '</span>',
+                    valuesHtml,
+                    firstCreatedAt|date('Y-m-d H:i')
+                ]
+            }]) %}
+        {% endif %}
     {% endfor %}
     
     {{ form_macros.data_table(table_headers, table_rows, table_actions) }}

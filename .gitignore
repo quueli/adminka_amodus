@@ -11,3 +11,18 @@
 /code-review.tar.gz
 /github/
 ###< symfony/framework-bundle ###
+
+# PowerShell testing scripts
+test_pages.ps1
+
+# Generated HTML test files
+*.html
+
+# Debug and temporary files
+debug_*.html
+current_*.html
+final_*.html
+grouped_*.html
+updated_*.html
+nomenclature_page_*.html
+page*_test.html
