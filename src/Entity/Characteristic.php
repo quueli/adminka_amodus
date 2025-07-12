@@ -31,15 +31,13 @@ class Characteristic
     #[ORM\OneToMany(mappedBy: 'characteristic', targetEntity: CharacteristicAvailableValue::class, cascade: ['remove'])]
     private Collection $availableValues;
 
-    #[ORM\OneToMany(mappedBy: 'characteristic', targetEntity: Nomenclature::class, cascade: ['remove'])]
-    private Collection $nomenclatures;
+
 
     public function __construct()
     {
         $this->createdAt = new \DateTime();
         $this->updatedAt = new \DateTime();
         $this->availableValues = new ArrayCollection();
-        $this->nomenclatures = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -112,31 +110,7 @@ class Characteristic
         return $this;
     }
 
-    public function getNomenclatures(): Collection
-    {
-        return $this->nomenclatures;
-    }
 
-    public function addNomenclature(Nomenclature $nomenclature): static
-    {
-        if (!$this->nomenclatures->contains($nomenclature)) {
-            $this->nomenclatures->add($nomenclature);
-            $nomenclature->setCharacteristic($this);
-        }
-
-        return $this;
-    }
-
-    public function removeNomenclature(Nomenclature $nomenclature): static
-    {
-        if ($this->nomenclatures->removeElement($nomenclature)) {
-            if ($nomenclature->getCharacteristic() === $this) {
-                $nomenclature->setCharacteristic(null);
-            }
-        }
-
-        return $this;
-    }
 
     public function __toString(): string
     {

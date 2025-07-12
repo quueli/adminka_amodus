@@ -197,27 +197,33 @@ class NomenclatureController extends AbstractController
 
             $characteristics = $this->entityManager->getRepository(Characteristic::class)->findAll();
 
+            // Собираем все выбранные значения из формы
+            $selectedValueIds = [];
             foreach ($characteristics as $characteristic) {
                 $fieldName = 'characteristic_' . $characteristic->getId();
 
                 if ($form->has($fieldName)) {
-                    $selectedValueIds = $form->get($fieldName)->getData();
-
-                    if ($selectedValueIds) {
-                        foreach ($selectedValueIds as $valueId) {
-                            $availableValue = $this->entityManager
-                                ->getRepository(CharacteristicAvailableValue::class)
-                                ->find($valueId);
-
-                            if ($availableValue) {
-                                $nomenclatureCharacteristicValue = new NomenclatureCharacteristicValue();
-                                $nomenclatureCharacteristicValue->setNomenclature($nomenclature);
-                                $nomenclatureCharacteristicValue->setCharacteristicAvailableValue($availableValue);
-
-                                $this->entityManager->persist($nomenclatureCharacteristicValue);
-                            }
-                        }
+                    $formSelectedIds = $form->get($fieldName)->getData();
+                    if ($formSelectedIds) {
+                        $selectedValueIds = array_merge($selectedValueIds, $formSelectedIds);
                     }
+                }
+            }
+
+            // Создаем связи только для уникальных значений
+            $selectedValueIds = array_unique($selectedValueIds);
+
+            foreach ($selectedValueIds as $valueId) {
+                $availableValue = $this->entityManager
+                    ->getRepository(CharacteristicAvailableValue::class)
+                    ->find($valueId);
+
+                if ($availableValue) {
+                    $nomenclatureCharacteristicValue = new NomenclatureCharacteristicValue();
+                    $nomenclatureCharacteristicValue->setNomenclature($nomenclature);
+                    $nomenclatureCharacteristicValue->setCharacteristicAvailableValue($availableValue);
+
+                    $this->entityManager->persist($nomenclatureCharacteristicValue);
                 }
             }
 
@@ -278,35 +284,23 @@ class NomenclatureController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            foreach ($nomenclature->getNomenclatureCharacteristicValues() as $ncv) {
-                $this->entityManager->remove($ncv);
-            }
-
+            // Собираем все выбранные значения из формы
+            $selectedValueIds = [];
             foreach ($characteristics as $characteristic) {
                 $fieldName = 'characteristic_' . $characteristic->getId();
 
                 if ($form->has($fieldName)) {
-                    $selectedValueIds = $form->get($fieldName)->getData();
-
-                    if ($selectedValueIds) {
-                        foreach ($selectedValueIds as $valueId) {
-                            $availableValue = $this->entityManager
-                                ->getRepository(CharacteristicAvailableValue::class)
-                                ->find($valueId);
-
-                            if ($availableValue) {
-                                $nomenclatureCharacteristicValue = new NomenclatureCharacteristicValue();
-                                $nomenclatureCharacteristicValue->setNomenclature($nomenclature);
-                                $nomenclatureCharacteristicValue->setCharacteristicAvailableValue($availableValue);
-
-                                $this->entityManager->persist($nomenclatureCharacteristicValue);
-                            }
-                        }
+                    $formSelectedIds = $form->get($fieldName)->getData();
+                    if ($formSelectedIds) {
+                        $selectedValueIds = array_merge($selectedValueIds, $formSelectedIds);
                     }
                 }
             }
 
-            $this->entityManager->flush();
+            // Используем безопасный метод обновления связей из репозитория
+            $this->entityManager
+                ->getRepository(NomenclatureCharacteristicValue::class)
+                ->updateNomenclatureConnections($nomenclature, $selectedValueIds);
 
             $this->addFlash('success', 'nomenclature_updated_successfully');
 
