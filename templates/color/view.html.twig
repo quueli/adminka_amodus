@@ -1,5 +1,7 @@
 {% extends 'base.html.twig' %}
 
+{% import 'macros/form_macros.html.twig' as form_macros %}
+
 {% block title %}{{ 'view_color'|trans }} #{{ record.id }} - {{ 'admin_panel'|trans }}{% endblock %}
 
 {% block body %}
@@ -23,91 +25,71 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <strong>{{ 'color'|trans }}:</strong>
-                            <div class="d-flex align-items-center mt-1">
-                                <div class="color-preview me-2" style="background-color: {{ record.hexColorNumber }}; width: 40px; height: 40px; border-radius: 4px; border: 1px solid #ddd;"></div>
-                                {{ record.color|default('-') }}
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <strong>{{ 'color'|trans }}:</strong>
+                                <div class="mt-1">{{ record.color|default('-') }}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <strong>{{ 'hex_color_number'|trans }}:</strong>
+                                <div class="mt-1">
+                                    <code class="bg-light px-2 py-1 rounded">{{ record.hexColorNumber|default('-') }}</code>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <strong>{{ 'saturation'|trans }}:</strong>
+                                <div class="mt-1">{{ record.saturation|default('-') }}</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <strong>{{ 'palette'|trans }}:</strong>
+                                <div class="mt-1">{{ record.palette|default('-') }}</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <strong>{{ 'hex_color_number'|trans }}:</strong>
-                            <div class="mt-1">
-                                <code class="bg-light px-2 py-1 rounded">{{ record.hexColorNumber|default('-') }}</code>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <strong>{{ 'saturation'|trans }}:</strong>
-                            <div class="mt-1">{{ record.saturation|default('-') }}</div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <strong>{{ 'palette'|trans }}:</strong>
-                            <div class="mt-1">{{ record.palette|default('-') }}</div>
-                        </div>
+                    <div class="col-md-4 text-center">
+                        <strong>{{ 'color_preview'|trans }}:</strong>
+                        <div class="color-preview mt-2 mx-auto" style="background-color: {{ record.hexColorNumber }}; width: 120px; height: 120px; border-radius: 8px; border: 2px solid #ddd; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="card mt-3">
-            <div class="card-header">
-                <h6 class="mb-0">{{ 'color_metadata'|trans }}</h6>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <strong>{{ 'id'|trans }}:</strong> {{ record.id }}
-                    </div>
-                    <div class="col-md-6">
-                        <strong>{{ 'created_at'|trans }}:</strong> {{ record.createdAt|date('Y-m-d H:i:s') }}
-                    </div>
-                </div>
-                <div class="row mt-2">
-                    <div class="col-md-6">
-                        <strong>{{ 'last_updated'|trans }}:</strong> {{ record.updatedAt|date('Y-m-d H:i:s') }}
-                    </div>
-                </div>
-            </div>
-        </div>
+        {{ form_macros.metadata_card('color_metadata', {
+            'id': record.id,
+            'created_at': record.createdAt|date('Y-m-d H:i:s'),
+            'last_updated': record.updatedAt|date('Y-m-d H:i:s')
+        }) }}
 
         <div class="card mt-3">
             <div class="card-header">
                 <h6 class="mb-0">{{ 'actions'|trans }}</h6>
             </div>
             <div class="card-body">
-                <div class="btn-group" role="group">
-                    <a href="{{ path('color_edit', {'id': record.id}) }}" class="btn btn-outline-primary">
-                        <i class="fas fa-edit"></i> {{ 'edit_color'|trans }}
-                    </a>
-                    <button type="button" class="btn btn-outline-danger" 
-                            onclick="confirmDelete({{ record.id }}, '{{ record.color|default('color') }}')">
-                        <i class="fas fa-trash"></i> {{ 'delete_color'|trans }}
-                    </button>
-                </div>
-                
-                <form id="delete-form-{{ record.id }}" action="{{ path('color_delete', {'id': record.id}) }}" method="post" style="display: none;">
-                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ record.id) }}">
-                </form>
+                {{ form_macros.action_buttons('color_edit', null, 'color_delete', record.id, record.color) }}
             </div>
         </div>
     </div>
 </div>
 
-<script>
-function confirmDelete(id, colorName) {
-    if (confirm('{{ 'are_you_sure_delete_color'|trans }}')) {
-        document.getElementById('delete-form-' + id).submit();
+{% block javascript %}
+    <script>
+    function confirmDelete(id, itemName, deleteUrl) {
+        if (confirm('{{ 'are_you_sure_delete_color'|trans }} "' + itemName + '"? {{ 'action_cannot_be_undone'|trans }}')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = deleteUrl;
+
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = '_token';
+            csrfToken.value = '{{ csrf_token('delete' ~ record.id) }}';
+            form.appendChild(csrfToken);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
     }
-}
-</script>
+    </script>
+{% endblock %}
 {% endblock %}

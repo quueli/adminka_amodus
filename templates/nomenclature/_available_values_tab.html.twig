@@ -1,0 +1,34 @@
+{% import 'macros/form_macros.html.twig' as form_macros %}
+
+<div class="d-flex justify-content-between align-items-center mb-3 mt-3">
+    <h4>{{ 'available_values'|trans }}</h4>
+    <a href="{{ path('nomenclature_characteristic_available_value_create') }}" class="btn btn-success-custom">
+        <i class="fas fa-plus"></i> {{ 'create_available_value'|trans }}
+    </a>
+</div>
+
+{% if availableValues|length > 0 %}
+    {% set table_headers = ['id', 'characteristic', 'value', 'created_at'] %}
+    {% set table_actions = {
+        'edit_route': 'nomenclature_characteristic_available_value_edit',
+        'delete_route': 'nomenclature_characteristic_available_value_delete'
+    } %}
+    
+    {% set table_rows = [] %}
+    {% for value in availableValues %}
+        {% set table_rows = table_rows|merge([{
+            'id': value.id,
+            'name': value.value,
+            'cells': [
+                '<strong>' ~ value.id ~ '</strong>',
+                '<span class="badge bg-info">' ~ value.characteristic.name ~ '</span>',
+                value.value,
+                value.createdAt|date('Y-m-d H:i')
+            ]
+        }]) %}
+    {% endfor %}
+    
+    {{ form_macros.data_table(table_headers, table_rows, table_actions) }}
+{% else %}
+    {{ form_macros.empty_state('no_available_values_found', 'nomenclature_characteristic_available_value_create', 'create_first_available_value') }}
+{% endif %}

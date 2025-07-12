@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% import 'macros/form_macros.html.twig' as form_macros %}
+
+{% block body %}
+    <div class="row">
+        <div class="{{ form_width|default('col-md-8') }} mx-auto">
+            {% block page_header %}
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1>
+                        <i class="{{ page_icon|default('fas fa-edit') }}"></i> 
+                        {{ page_title|trans }}
+                        {% if item is defined and item.id is defined %}
+                            #{{ item.id }}
+                        {% endif %}
+                    </h1>
+                    <div>
+                        {% block additional_buttons %}{% endblock %}
+                        <a href="{{ path(back_route) }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> {{ back_label|default('back')|trans }}
+                        </a>
+                    </div>
+                </div>
+            {% endblock %}
+
+            {% block form_content %}
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">{{ form_title|trans }}</h5>
+                    </div>
+                    <div class="card-body">
+                        {{ form_start(form) }}
+                        
+                        {% block form_fields %}
+                        {% endblock %}
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path(back_route) }}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> {{ 'cancel'|trans }}
+                            </a>
+                            {{ form_widget(form.save, {'label': submit_label|default('save')|trans}) }}
+                        </div>
+
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            {% endblock %}
+
+            {% block metadata %}
+                {% if item is defined and item.id is defined %}
+                    {{ form_macros.metadata_card('metadata', {
+                        'id': item.id,
+                        'created_at': item.createdAt|date('Y-m-d H:i:s'),
+                        'last_updated': item.updatedAt|date('Y-m-d H:i:s')
+                    }) }}
+                {% endif %}
+            {% endblock %}
+
+            {% block additional_content %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}

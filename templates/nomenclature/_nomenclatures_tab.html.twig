@@ -1,0 +1,56 @@
+{% import 'macros/form_macros.html.twig' as form_macros %}
+
+<div class="d-flex justify-content-between align-items-center mb-3 mt-3">
+    <h4>{{ 'nomenclatures'|trans }}</h4>
+    <a href="{{ path('nomenclature_create') }}" class="btn btn-success-custom">
+        <i class="fas fa-plus"></i> {{ 'create_nomenclature'|trans }}
+    </a>
+</div>
+
+{% if nomenclatures|length > 0 %}
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0 nomenclature-table">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>{{ 'id'|trans }}</th>
+                            <th>{{ 'nomenclature_name'|trans }}</th>
+                            {% for characteristic in characteristics %}
+                                <th>{{ characteristic.name }}</th>
+                            {% endfor %}
+                            <th>{{ 'created_at'|trans }}</th>
+                            <th>{{ 'actions'|trans }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for nomenclature in nomenclatures %}
+                            <tr>
+                                <td><strong>{{ nomenclature.id }}</strong></td>
+                                <td>{{ nomenclature.nomenclatureName }}</td>
+                                {% for characteristic in characteristics %}
+                                    <td class="characteristic-cell">
+                                        {% set characteristicValues = nomenclatureData[nomenclature.id]['characteristics'][characteristic.id]|default([]) %}
+                                        {% if characteristicValues|length > 0 %}
+                                            {% for value in characteristicValues %}
+                                                <span class="badge bg-secondary me-1 mb-1">{{ value }}</span>
+                                            {% endfor %}
+                                        {% else %}
+                                            <span class="text-muted">{{ 'not_specified'|trans }}</span>
+                                        {% endif %}
+                                    </td>
+                                {% endfor %}
+                                <td>{{ nomenclature.createdAt|date('Y-m-d H:i') }}</td>
+                                <td>
+                                    {{ form_macros.action_buttons('nomenclature_edit', null, 'nomenclature_delete', nomenclature.id, nomenclature.nomenclatureName) }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% else %}
+    {{ form_macros.empty_state('no_nomenclatures_found', 'nomenclature_create', 'create_first_nomenclature') }}
+{% endif %}

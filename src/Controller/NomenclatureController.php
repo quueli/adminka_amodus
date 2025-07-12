@@ -8,7 +8,6 @@ use App\Entity\Nomenclature;
 use App\Entity\NomenclatureCharacteristicValue;
 use App\Form\CharacteristicType;
 use App\Form\CharacteristicAvailableValueType;
-use App\Form\NomenclatureType;
 use App\Form\NomenclatureMultipleType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -71,7 +70,9 @@ class NomenclatureController extends AbstractController
 
         return $this->render('nomenclature/index.html.twig', [
             'allCharacteristics' => $allCharacteristics,
-            'availableValues' => $availableValues,
+            'allAvailableValues' => $availableValues,
+            'nomenclatures' => array_column($nomenclatureData, 'nomenclature'),
+            'characteristics' => $allCharacteristics,
             'nomenclatureData' => $nomenclatureData,
         ]);
     }
@@ -197,7 +198,6 @@ class NomenclatureController extends AbstractController
 
             $characteristics = $this->entityManager->getRepository(Characteristic::class)->findAll();
 
-            // Собираем все выбранные значения из формы
             $selectedValueIds = [];
             foreach ($characteristics as $characteristic) {
                 $fieldName = 'characteristic_' . $characteristic->getId();
@@ -210,7 +210,6 @@ class NomenclatureController extends AbstractController
                 }
             }
 
-            // Создаем связи только для уникальных значений
             $selectedValueIds = array_unique($selectedValueIds);
 
             foreach ($selectedValueIds as $valueId) {
@@ -284,7 +283,6 @@ class NomenclatureController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // Собираем все выбранные значения из формы
             $selectedValueIds = [];
             foreach ($characteristics as $characteristic) {
                 $fieldName = 'characteristic_' . $characteristic->getId();
@@ -297,7 +295,6 @@ class NomenclatureController extends AbstractController
                 }
             }
 
-            // Используем безопасный метод обновления связей из репозитория
             $this->entityManager
                 ->getRepository(NomenclatureCharacteristicValue::class)
                 ->updateNomenclatureConnections($nomenclature, $selectedValueIds);

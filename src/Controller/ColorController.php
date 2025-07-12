@@ -4,18 +4,13 @@ namespace App\Controller;
 
 use App\Entity\ColorRecord;
 use App\Form\ColorRecordType;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-class ColorController extends AbstractController
+class ColorController extends BaseController
 {
-    public function __construct(
-        private EntityManagerInterface $entityManager
-    ) {}
-
     #[Route('/colors', name: 'color_index')]
     public function index(): Response
     {
@@ -34,18 +29,20 @@ class ColorController extends AbstractController
         $record = new ColorRecord();
         $form = $this->createForm(ColorRecordType::class, $record);
 
-        $form->handleRequest($request);
+        $response = $this->handleForm(
+            $form,
+            $record,
+            $request,
+            'color_created_successfully',
+            'color_index',
+            true
+        );
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->entityManager->persist($record);
-            $this->entityManager->flush();
-
-            $this->addFlash('success', 'color_created_successfully');
-
-            return $this->redirectToRoute('color_index');
+        if ($response) {
+            return $response;
         }
 
-        return $this->render('color/create.html.twig', [
+        return $this->createCrudResponse('color/create.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -55,17 +52,19 @@ class ColorController extends AbstractController
     {
         $form = $this->createForm(ColorRecordType::class, $record);
 
-        $form->handleRequest($request);
+        $response = $this->handleForm(
+            $form,
+            $record,
+            $request,
+            'color_updated_successfully',
+            'color_index'
+        );
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->entityManager->flush();
-
-            $this->addFlash('success', 'color_updated_successfully');
-
-            return $this->redirectToRoute('color_index');
+        if ($response) {
+            return $response;
         }
 
-        return $this->render('color/edit.html.twig', [
+        return $this->createCrudResponse('color/edit.html.twig', [
             'form' => $form->createView(),
             'record' => $record,
         ]);
@@ -82,13 +81,12 @@ class ColorController extends AbstractController
     #[Route('/colors/delete/{id}', name: 'color_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function delete(Request $request, ColorRecord $record): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$record->getId(), $request->request->get('_token'))) {
-            $this->entityManager->remove($record);
-            $this->entityManager->flush();
-
-            $this->addFlash('success', 'color_deleted_successfully');
-        }
-
-        return $this->redirectToRoute('color_index');
+        return $this->deleteEntity(
+            $record,
+            $request,
+            'delete'.$record->getId(),
+            'color_deleted_successfully',
+            'color_index'
+        );
     }
 }

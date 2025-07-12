@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% import 'macros/form_macros.html.twig' as form_macros %}
+
+{% block body %}
+    {% block page_header %}
+        {{ form_macros.page_header(
+            page_title|default('page_title'),
+            create_route|default(null),
+            create_label|default('create_new'),
+            create_icon|default('fas fa-plus')
+        ) }}
+    {% endblock %}
+
+    {% block content %}
+        {% if items is defined and items|length > 0 %}
+            {% block data_table %}
+                {{ form_macros.data_table(
+                    table_headers|default([]),
+                    table_rows|default([]),
+                    table_actions|default({})
+                ) }}
+            {% endblock %}
+        {% else %}
+            {% block empty_state %}
+                {{ form_macros.empty_state(
+                    empty_message|default('no_items_found'),
+                    create_route|default(null),
+                    create_label|default('create_first_item')
+                ) }}
+            {% endblock %}
+        {% endif %}
+    {% endblock %}
+
+    {% block additional_content %}{% endblock %}
+
+    {% block javascript %}
+        <script>
+        function confirmDelete(id, itemName, deleteUrl) {
+            if (confirm('{{ 'are_you_sure_delete'|trans }} "' + itemName + '"? {{ 'action_cannot_be_undone'|trans }}')) {
+                // Создаем форму для отправки DELETE запроса
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = deleteUrl;
+                
+                // Добавляем CSRF токен
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token('delete') }}';
+                form.appendChild(csrfToken);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+        </script>
+    {% endblock %}
+{% endblock %}

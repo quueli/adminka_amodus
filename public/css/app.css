@@ -357,3 +357,72 @@ body {
         max-width: 100%;
     }
 }
+
+.color-preview {
+    border: 2px solid #dee2e6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+.color-preview:hover {
+    transform: scale(1.05);
+}
+
+.characteristic-cell .badge {
+    font-size: 0.75rem;
+    margin: 0.125rem;
+}
+
+.nomenclature-table .characteristic-cell {
+    min-width: 120px;
+    max-width: 200px;
+}
+
+.table-dark th {
+    color: #ffffff !important;
+    border-color: #495057;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0,0,0,0.075);
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #6c757d;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    border-bottom-color: #dee2e6;
+    color: #495057;
+}
+
+.nav-tabs .nav-link.active {
+    border-bottom-color: #007bff;
+    color: #007bff;
+    background-color: transparent;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@media (max-width: 768px) {
+    .nomenclature-table .characteristic-cell {
+        min-width: 80px;
+        max-width: 120px;
+    }
+
+    .characteristic-cell .badge {
+        font-size: 0.65rem;
+        margin: 0.1rem;
+    }
+}
