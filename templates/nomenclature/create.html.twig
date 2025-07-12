@@ -11,7 +11,7 @@
 </div>
 
 <div class="row justify-content-center">
-    <div class="col-md-8">
+    <div class="col-md-10">
         <div class="card">
             <div class="card-header">
                 <h5 class="mb-0">{{ 'nomenclature_information'|trans }}</h5>
@@ -19,18 +19,68 @@
             <div class="card-body">
                 {{ form_start(form) }}
 
-                <div class="mb-3">
+                <div class="mb-4">
                     {{ form_label(form.nomenclatureName) }}
                     {{ form_widget(form.nomenclatureName) }}
                     {{ form_errors(form.nomenclatureName) }}
                 </div>
 
-                <div class="mb-3">
-                    {{ form_label(form.characteristicAvailableValues) }}
-                    {{ form_widget(form.characteristicAvailableValues) }}
-                    {{ form_errors(form.characteristicAvailableValues) }}
-                    <div class="form-text">{{ 'select_multiple_values_help'|trans }}</div>
-                </div>
+                {% if characteristics is defined and characteristics|length > 0 %}
+                    <div class="mb-4">
+                        <h5 class="mb-3">{{ 'select_characteristics'|trans }}</h5>
+                        <div class="characteristics-container">
+                            {% for characteristic in characteristics %}
+                                {% if characteristic.availableValues|length > 0 %}
+                                    {% set fieldName = 'characteristic_' ~ characteristic.id %}
+                                    {% if form[fieldName] is defined %}
+                                        <div class="characteristic-group mb-3">
+                                            <div class="card border-light">
+                                                <div class="card-header bg-light py-2">
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <h6 class="mb-0 fw-bold">
+                                                            <i class="fas fa-tag text-primary me-2"></i>
+                                                            {{ characteristic.name }}
+                                                            <span class="badge bg-secondary ms-2">{{ 'available'|trans }}: {{ characteristic.availableValues|length }}</span>
+                                                        </h6>
+                                                        <div class="btn-group btn-group-sm" role="group">
+                                                            <button type="button" class="btn btn-outline-primary btn-sm select-all-btn"
+                                                                    data-characteristic="{{ characteristic.id }}">
+                                                                <i class="fas fa-check-double"></i> {{ 'select_all'|trans }}
+                                                            </button>
+                                                            <button type="button" class="btn btn-outline-secondary btn-sm clear-all-btn"
+                                                                    data-characteristic="{{ characteristic.id }}">
+                                                                <i class="fas fa-times"></i> {{ 'clear_all'|trans }}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="card-body py-3">
+                                                    <div class="row">
+                                                        {% for choice in form[fieldName] %}
+                                                            <div class="col-md-6 col-lg-4 mb-2">
+                                                                <div class="form-check">
+                                                                    {{ form_widget(choice) }}
+                                                                    {{ form_label(choice, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                                                                </div>
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                    {{ form_errors(form[fieldName]) }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        {{ 'no_characteristics_found'|trans }}.
+                        <a href="{{ path('nomenclature_characteristic_create') }}" class="alert-link">{{ 'create_characteristic'|trans }}</a>
+                    </div>
+                {% endif %}
 
                 <div class="d-flex justify-content-between">
                     <a href="{{ path('nomenclature_index') }}" class="btn btn-secondary">
@@ -45,5 +95,29 @@
     </div>
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Функция для выбора всех значений в группе
+    document.querySelectorAll('.select-all-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const characteristicId = this.getAttribute('data-characteristic');
+            const checkboxes = document.querySelectorAll(`input[name="nomenclature_multiple[characteristic_${characteristicId}][]"]`);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = true;
+            });
+        });
+    });
 
+    // Функция для снятия всех значений в группе
+    document.querySelectorAll('.clear-all-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const characteristicId = this.getAttribute('data-characteristic');
+            const checkboxes = document.querySelectorAll(`input[name="nomenclature_multiple[characteristic_${characteristicId}][]"]`);
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        });
+    });
+});
+</script>
 {% endblock %}

@@ -198,16 +198,35 @@ class NomenclatureController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Сохраняем номенклатуру
             $this->entityManager->persist($nomenclature);
 
-            $selectedValues = $form->get('characteristicAvailableValues')->getData();
+            // Получаем все характеристики для обработки выбранных значений
+            $characteristics = $this->entityManager->getRepository(Characteristic::class)->findAll();
 
-            foreach ($selectedValues as $availableValue) {
-                $nomenclatureCharacteristicValue = new NomenclatureCharacteristicValue();
-                $nomenclatureCharacteristicValue->setNomenclature($nomenclature);
-                $nomenclatureCharacteristicValue->setCharacteristicAvailableValue($availableValue);
+            // Обрабатываем выбранные значения из каждой группы характеристик
+            foreach ($characteristics as $characteristic) {
+                $fieldName = 'characteristic_' . $characteristic->getId();
 
-                $this->entityManager->persist($nomenclatureCharacteristicValue);
+                if ($form->has($fieldName)) {
+                    $selectedValueIds = $form->get($fieldName)->getData();
+
+                    if ($selectedValueIds) {
+                        foreach ($selectedValueIds as $valueId) {
+                            $availableValue = $this->entityManager
+                                ->getRepository(CharacteristicAvailableValue::class)
+                                ->find($valueId);
+
+                            if ($availableValue) {
+                                $nomenclatureCharacteristicValue = new NomenclatureCharacteristicValue();
+                                $nomenclatureCharacteristicValue->setNomenclature($nomenclature);
+                                $nomenclatureCharacteristicValue->setCharacteristicAvailableValue($availableValue);
+
+                                $this->entityManager->persist($nomenclatureCharacteristicValue);
+                            }
+                        }
+                    }
+                }
             }
 
             $this->entityManager->flush();
@@ -217,8 +236,19 @@ class NomenclatureController extends AbstractController
             return $this->redirectToRoute('nomenclature_index');
         }
 
+        // Получаем характеристики для передачи в шаблон
+        $characteristics = $this->entityManager
+            ->getRepository(Characteristic::class)
+            ->createQueryBuilder('c')
+            ->leftJoin('c.availableValues', 'av')
+            ->addSelect('av')
+            ->orderBy('c.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+
         return $this->render('nomenclature/create.html.twig', [
             'form' => $form->createView(),
+            'characteristics' => $characteristics,
         ]);
     }
 
@@ -227,24 +257,67 @@ class NomenclatureController extends AbstractController
     {
         $form = $this->createForm(NomenclatureMultipleType::class, $nomenclature);
 
+        // Получаем характеристики для передачи в шаблон
+        $characteristics = $this->entityManager
+            ->getRepository(Characteristic::class)
+            ->createQueryBuilder('c')
+            ->leftJoin('c.availableValues', 'av')
+            ->addSelect('av')
+            ->orderBy('c.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        // Предзаполняем форму текущими значениями
         $currentValues = $nomenclature->getCharacteristicAvailableValues();
-        $form->get('characteristicAvailableValues')->setData($currentValues);
+        $currentValuesByCharacteristic = [];
+
+        foreach ($currentValues as $value) {
+            $characteristicId = $value->getCharacteristic()->getId();
+            if (!isset($currentValuesByCharacteristic[$characteristicId])) {
+                $currentValuesByCharacteristic[$characteristicId] = [];
+            }
+            $currentValuesByCharacteristic[$characteristicId][] = $value->getId();
+        }
+
+        // Устанавливаем текущие значения в форму
+        foreach ($characteristics as $characteristic) {
+            $fieldName = 'characteristic_' . $characteristic->getId();
+            if ($form->has($fieldName) && isset($currentValuesByCharacteristic[$characteristic->getId()])) {
+                $form->get($fieldName)->setData($currentValuesByCharacteristic[$characteristic->getId()]);
+            }
+        }
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Удаляем все существующие связи
             foreach ($nomenclature->getNomenclatureCharacteristicValues() as $ncv) {
                 $this->entityManager->remove($ncv);
             }
 
-            $selectedValues = $form->get('characteristicAvailableValues')->getData();
+            // Обрабатываем выбранные значения из каждой группы характеристик
+            foreach ($characteristics as $characteristic) {
+                $fieldName = 'characteristic_' . $characteristic->getId();
 
-            foreach ($selectedValues as $availableValue) {
-                $nomenclatureCharacteristicValue = new NomenclatureCharacteristicValue();
-                $nomenclatureCharacteristicValue->setNomenclature($nomenclature);
-                $nomenclatureCharacteristicValue->setCharacteristicAvailableValue($availableValue);
+                if ($form->has($fieldName)) {
+                    $selectedValueIds = $form->get($fieldName)->getData();
 
-                $this->entityManager->persist($nomenclatureCharacteristicValue);
+                    if ($selectedValueIds) {
+                        foreach ($selectedValueIds as $valueId) {
+                            $availableValue = $this->entityManager
+                                ->getRepository(CharacteristicAvailableValue::class)
+                                ->find($valueId);
+
+                            if ($availableValue) {
+                                $nomenclatureCharacteristicValue = new NomenclatureCharacteristicValue();
+                                $nomenclatureCharacteristicValue->setNomenclature($nomenclature);
+                                $nomenclatureCharacteristicValue->setCharacteristicAvailableValue($availableValue);
+
+                                $this->entityManager->persist($nomenclatureCharacteristicValue);
+                            }
+                        }
+                    }
+                }
             }
 
             $this->entityManager->flush();
@@ -257,6 +330,7 @@ class NomenclatureController extends AbstractController
         return $this->render('nomenclature/edit.html.twig', [
             'form' => $form->createView(),
             'nomenclature' => $nomenclature,
+            'characteristics' => $characteristics,
         ]);
     }
 

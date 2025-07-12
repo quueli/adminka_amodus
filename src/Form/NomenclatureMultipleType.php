@@ -5,15 +5,24 @@ namespace App\Form;
 use App\Entity\Nomenclature;
 use App\Entity\Characteristic;
 use App\Entity\CharacteristicAvailableValue;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class NomenclatureMultipleType extends AbstractType
 {
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -24,31 +33,52 @@ class NomenclatureMultipleType extends AbstractType
                     'placeholder' => 'enter_nomenclature_name'
                 ],
                 'required' => true,
-            ])
-            ->add('characteristicAvailableValues', EntityType::class, [
-                'class' => CharacteristicAvailableValue::class,
-                'choice_label' => function(CharacteristicAvailableValue $value) {
-                    return $value->getCharacteristic()->getName() . ': ' . $value->getValue();
-                },
-                'label' => 'available_values',
-                'attr' => [
-                    'class' => 'form-select',
-                    'id' => 'nomenclature_available_values',
-                    'multiple' => true,
-                    'size' => 10
-                ],
-                'multiple' => true,
-                'expanded' => false,
-                'required' => true,
-                'mapped' => false,
-                'help' => 'select_multiple_values_help'
-            ])
-            ->add('save', SubmitType::class, [
-                'label' => 'save',
-                'attr' => [
-                    'class' => 'btn btn-primary'
-                ]
             ]);
+
+        // Получаем все характеристики с их доступными значениями
+        $characteristics = $this->entityManager
+            ->getRepository(Characteristic::class)
+            ->createQueryBuilder('c')
+            ->leftJoin('c.availableValues', 'av')
+            ->addSelect('av')
+            ->orderBy('c.name', 'ASC')
+            ->addOrderBy('av.value', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        // Создаем поля для каждой характеристики
+        foreach ($characteristics as $characteristic) {
+            $availableValues = $characteristic->getAvailableValues();
+
+            if ($availableValues->count() > 0) {
+                $choices = [];
+                foreach ($availableValues as $value) {
+                    $choices[$value->getValue()] = $value->getId();
+                }
+
+                $builder->add('characteristic_' . $characteristic->getId(), ChoiceType::class, [
+                    'label' => $characteristic->getName(),
+                    'choices' => $choices,
+                    'multiple' => true,
+                    'expanded' => true,
+                    'required' => false,
+                    'mapped' => false,
+                    'attr' => [
+                        'class' => 'characteristic-group',
+                        'data-characteristic-id' => $characteristic->getId(),
+                        'data-characteristic-name' => $characteristic->getName(),
+                        'data-available-count' => $availableValues->count()
+                    ]
+                ]);
+            }
+        }
+
+        $builder->add('save', SubmitType::class, [
+            'label' => 'save',
+            'attr' => [
+                'class' => 'btn btn-primary'
+            ]
+        ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
