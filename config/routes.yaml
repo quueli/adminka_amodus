@@ -10,29 +10,57 @@ test:
     path: /test
     controller: App\Controller\HomeController::test
 
+color_index:
+    path: /colors
+    controller: App\Controller\ColorController::index
+
+color_create:
+    path: /colors/create
+    controller: App\Controller\ColorController::create
+
+color_edit:
+    path: /colors/edit/{id}
+    controller: App\Controller\ColorController::edit
+    requirements:
+        id: '\d+'
+
+color_view:
+    path: /colors/view/{id}
+    controller: App\Controller\ColorController::view
+    requirements:
+        id: '\d+'
+
+color_delete:
+    path: /colors/delete/{id}
+    controller: App\Controller\ColorController::delete
+    methods: [POST]
+    requirements:
+        id: '\d+'
+
+# Legacy admin routes for backward compatibility
 admin_index:
     path: /admin
-    controller: App\Controller\AdminController::index
+    controller: App\Controller\ColorController::index
 
 admin_create:
     path: /admin/create
-    controller: App\Controller\AdminController::create
+    controller: App\Controller\ColorController::create
 
 admin_edit:
     path: /admin/edit/{id}
-    controller: App\Controller\AdminController::edit
+    controller: App\Controller\ColorController::edit
     requirements:
         id: '\d+'
 
 admin_view:
     path: /admin/view/{id}
-    controller: App\Controller\AdminController::view
+    controller: App\Controller\ColorController::view
     requirements:
         id: '\d+'
 
 admin_delete:
     path: /admin/delete/{id}
-    controller: App\Controller\AdminController::delete
+    controller: App\Controller\ColorController::delete
     methods: [POST]
     requirements:
         id: '\d+'
