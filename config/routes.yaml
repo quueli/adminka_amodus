@@ -37,7 +37,6 @@ color_delete:
     requirements:
         id: '\d+'
 
-# Legacy admin routes for backward compatibility
 admin_index:
     path: /admin
     controller: App\Controller\ColorController::index
@@ -65,7 +64,6 @@ admin_delete:
     requirements:
         id: '\d+'
 
-# Nomenclature routes
 nomenclature_index:
     path: /nomenclature
     controller: App\Controller\NomenclatureController::index

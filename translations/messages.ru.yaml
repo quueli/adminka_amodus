@@ -114,7 +114,6 @@ available: 'доступно'
 select_all: 'Выбрать все'
 clear_all: 'Снять все'
 
-# Color management translations
 colors: 'Цвета'
 colors_management: 'Управление цветами'
 create_new_color: 'Создать новый цвет'
