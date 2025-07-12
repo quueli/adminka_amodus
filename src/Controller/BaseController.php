@@ -13,9 +13,6 @@ abstract class BaseController extends AbstractController
         protected EntityManagerInterface $entityManager
     ) {}
 
-    /**
-     * Обработка стандартной формы создания/редактирования
-     */
     protected function handleForm(
         $form,
         $entity,
@@ -40,9 +37,6 @@ abstract class BaseController extends AbstractController
         return null;
     }
 
-    /**
-     * Безопасное удаление сущности
-     */
     protected function deleteEntity(
         $entity,
         Request $request,
@@ -62,9 +56,6 @@ abstract class BaseController extends AbstractController
         return $this->redirectToRoute($redirectRoute);
     }
 
-    /**
-     * Создание стандартного ответа для CRUD операций
-     */
     protected function createCrudResponse(
         string $template,
         array $data = []
@@ -72,9 +63,6 @@ abstract class BaseController extends AbstractController
         return $this->render($template, $data);
     }
 
-    /**
-     * Получение сущности или возврат 404
-     */
     protected function getEntityOr404(string $entityClass, int $id)
     {
         $entity = $this->entityManager->getRepository($entityClass)->find($id);
@@ -86,17 +74,11 @@ abstract class BaseController extends AbstractController
         return $entity;
     }
 
-    /**
-     * Добавление flash сообщения с переводом
-     */
     protected function addTranslatedFlash(string $type, string $messageKey, array $parameters = []): void
     {
         $this->addFlash($type, $this->trans($messageKey, $parameters));
     }
 
-    /**
-     * Перевод сообщения
-     */
     protected function trans(string $id, array $parameters = [], string $domain = 'messages'): string
     {
         return $this->container->get('translator')->trans($id, $parameters, $domain);

@@ -57,21 +57,14 @@ class NomenclatureCharacteristicValueRepository extends ServiceEntityRepository
             ->execute();
     }
 
-    /**
-     * Безопасно обновляет связи номенклатуры с характеристиками
-     * Удаляет старые связи и создает новые в правильном порядке
-     */
     public function updateNomenclatureConnections($nomenclature, array $characteristicAvailableValueIds): void
     {
         $entityManager = $this->getEntityManager();
 
-        // Сначала удаляем все существующие связи
         $this->removeAllForNomenclature($nomenclature);
 
-        // Применяем удаление
         $entityManager->flush();
 
-        // Создаем новые связи
         foreach (array_unique($characteristicAvailableValueIds) as $valueId) {
             $availableValue = $entityManager
                 ->getRepository(\App\Entity\CharacteristicAvailableValue::class)
@@ -86,7 +79,6 @@ class NomenclatureCharacteristicValueRepository extends ServiceEntityRepository
             }
         }
 
-        // Применяем создание новых связей
         $entityManager->flush();
     }
 }

@@ -47,7 +47,6 @@
                     <div class="row">
                         {% set characteristicsData = {} %}
 
-                        {# Group characteristic values by characteristic type to avoid duplicate cards #}
                         {% for ncv in nomenclature.nomenclatureCharacteristicValues %}
                             {% if ncv.characteristicAvailableValue and ncv.characteristicAvailableValue.characteristic %}
                                 {% set characteristic = ncv.characteristicAvailableValue.characteristic %}
