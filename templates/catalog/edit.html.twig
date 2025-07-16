@@ -1,0 +1,262 @@
+{% extends 'base.html.twig' %}
+
+{% import 'macros/form_macros.html.twig' as form_macros %}
+
+{% block title %}{{ 'edit_catalog_item'|trans }} - {{ catalogItem.name }} - {{ 'admin_panel'|trans }}{% endblock %}
+
+{% block body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-edit"></i> {{ 'edit_catalog_item'|trans }}</h1>
+    <div>
+        <a href="{{ path('catalog_show', {'id': catalogItem.id}) }}" class="btn btn-secondary me-2">
+            <i class="fas fa-eye"></i> {{ 'view'|trans }}
+        </a>
+        <a href="{{ path('catalog_index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-list"></i> {{ 'back_to_catalog'|trans }}
+        </a>
+    </div>
+</div>
+
+<!-- Current Item Info -->
+<div class="alert alert-info mb-4">
+    <div class="d-flex align-items-center">
+        <i class="fas fa-info-circle me-2"></i>
+        <div>
+            <strong>{{ 'editing_item'|trans }}:</strong> {{ catalogItem.name }}
+            {% if catalogItem.parent %}
+                <br><small>{{ 'parent'|trans }}: {{ catalogItem.parent.name }}</small>
+            {% endif %}
+            <br><small>{{ 'level'|trans }}: {{ catalogItem.level }}</small>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{{ 'edit_catalog_item_information'|trans }}</h5>
+            </div>
+            <div class="card-body">
+                {{ form_start(form) }}
+                
+                <div class="row">
+                    <!-- Basic Information -->
+                    <div class="col-md-6">
+                        <h6 class="text-primary mb-3">
+                            <i class="fas fa-info-circle"></i> {{ 'basic_information'|trans }}
+                        </h6>
+                        
+                        <div class="mb-3">
+                            {{ form_label(form.name) }}
+                            {{ form_widget(form.name) }}
+                            {{ form_errors(form.name) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.parent) }}
+                            {{ form_widget(form.parent) }}
+                            {{ form_errors(form.parent) }}
+                            <div class="form-text">
+                                {{ 'parent_change_warning'|trans }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.sortOrder) }}
+                            {{ form_widget(form.sortOrder) }}
+                            {{ form_errors(form.sortOrder) }}
+                        </div>
+                    </div>
+
+                    <!-- Excel Structure Fields -->
+                    <div class="col-md-6">
+                        <h6 class="text-success mb-3">
+                            <i class="fas fa-table"></i> {{ 'catalog_structure'|trans }}
+                        </h6>
+                        
+                        <div class="mb-3">
+                            {{ form_label(form.baseType) }}
+                            {{ form_widget(form.baseType) }}
+                            {{ form_errors(form.baseType) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.item) }}
+                            {{ form_widget(form.item) }}
+                            {{ form_errors(form.item) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.location) }}
+                            {{ form_widget(form.location) }}
+                            {{ form_errors(form.location) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.mainItem) }}
+                            {{ form_widget(form.mainItem) }}
+                            {{ form_errors(form.mainItem) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.itemName) }}
+                            {{ form_widget(form.itemName) }}
+                            {{ form_errors(form.itemName) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.layer) }}
+                            {{ form_widget(form.layer) }}
+                            {{ form_errors(form.layer) }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Fields -->
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-info mb-3">
+                            <i class="fas fa-plus-circle"></i> {{ 'additional_information'|trans }}
+                        </h6>
+                        
+                        <div class="mb-3">
+                            {{ form_label(form.synonym) }}
+                            {{ form_widget(form.synonym) }}
+                            {{ form_errors(form.synonym) }}
+                            <div class="form-text">{{ 'synonym_help'|trans }}</div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.constructionDetails) }}
+                            {{ form_widget(form.constructionDetails) }}
+                            {{ form_errors(form.constructionDetails) }}
+                        </div>
+                    </div>
+
+                    <!-- Seasonal Information -->
+                    <div class="col-md-6">
+                        <h6 class="text-warning mb-3">
+                            <i class="fas fa-calendar-alt"></i> {{ 'seasons'|trans }}
+                        </h6>
+                        
+                        <div class="row">
+                            {% for i in 1..8 %}
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        {{ form_widget(form['season' ~ i]) }}
+                                        {{ form_label(form['season' ~ i]) }}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <div>
+                        <a href="{{ path('catalog_show', {'id': catalogItem.id}) }}" class="btn btn-secondary me-2">
+                            <i class="fas fa-times"></i> {{ 'cancel'|trans }}
+                        </a>
+                        <a href="{{ path('catalog_index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-list"></i> {{ 'back_to_catalog'|trans }}
+                        </a>
+                    </div>
+                    {{ form_widget(form.save) }}
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+
+        <!-- Children Warning -->
+        {% if catalogItem.hasChildren %}
+        <div class="alert alert-warning mt-4">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <div>
+                    <strong>{{ 'warning'|trans }}:</strong> 
+                    {{ 'item_has_children_warning'|trans({'%count%': catalogItem.children|length}) }}
+                    <br>
+                    <small>{{ 'parent_change_affects_children'|trans }}</small>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus on name field
+    const nameField = document.querySelector('#catalog_item_name');
+    if (nameField) {
+        nameField.focus();
+        nameField.select();
+    }
+
+    // Season checkboxes helper
+    const seasonCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="catalog_item_season"]');
+    if (seasonCheckboxes.length > 0) {
+        // Add "Select All" / "Deselect All" functionality
+        const seasonsContainer = seasonCheckboxes[0].closest('.col-md-6');
+        if (seasonsContainer) {
+            const headerElement = seasonsContainer.querySelector('h6');
+            if (headerElement) {
+                const toggleButtons = document.createElement('div');
+                toggleButtons.className = 'mb-2';
+                toggleButtons.innerHTML = `
+                    <button type="button" class="btn btn-sm btn-outline-primary me-2" id="selectAllSeasons">
+                        {{ 'select_all'|trans }}
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="deselectAllSeasons">
+                        {{ 'clear_all'|trans }}
+                    </button>
+                `;
+                headerElement.parentNode.insertBefore(toggleButtons, headerElement.nextSibling);
+
+                // Add event listeners
+                document.getElementById('selectAllSeasons').addEventListener('click', function() {
+                    seasonCheckboxes.forEach(checkbox => checkbox.checked = true);
+                });
+
+                document.getElementById('deselectAllSeasons').addEventListener('click', function() {
+                    seasonCheckboxes.forEach(checkbox => checkbox.checked = false);
+                });
+            }
+        }
+    }
+
+    // Parent selection warning
+    const parentSelect = document.querySelector('#catalog_item_parent');
+    if (parentSelect) {
+        const originalParent = parentSelect.value;
+        parentSelect.addEventListener('change', function() {
+            if (this.value !== originalParent) {
+                const warning = document.createElement('div');
+                warning.className = 'alert alert-warning mt-2';
+                warning.innerHTML = `
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {{ 'parent_change_warning_detailed'|trans }}
+                `;
+                
+                // Remove existing warning
+                const existingWarning = parentSelect.parentNode.querySelector('.alert-warning');
+                if (existingWarning) {
+                    existingWarning.remove();
+                }
+                
+                parentSelect.parentNode.appendChild(warning);
+            } else {
+                // Remove warning if parent is back to original
+                const existingWarning = parentSelect.parentNode.querySelector('.alert-warning');
+                if (existingWarning) {
+                    existingWarning.remove();
+                }
+            }
+        });
+    }
+});
+</script>
+
+{% endblock %}
