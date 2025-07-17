@@ -21,98 +21,144 @@ class CatalogItemRepository extends ServiceEntityRepository
         parent::__construct($registry, CatalogItem::class);
     }
 
-    /**
-     * Найти все корневые элементы (без родителя)
-     */
-    public function findRootItems(): array
+    public function findAllSorted(): array
     {
         return $this->createQueryBuilder('c')
-            ->where('c.parent IS NULL')
-            ->orderBy('c.sortOrder', 'ASC')
-            ->addOrderBy('c.name', 'ASC')
+            ->orderBy('c.baseType', 'ASC')
+            ->addOrderBy('c.item', 'ASC')
+            ->addOrderBy('c.location', 'ASC')
+            ->addOrderBy('c.mainItem', 'ASC')
+            ->addOrderBy('c.itemName', 'ASC')
+            ->addOrderBy('c.sortOrder', 'ASC')
             ->getQuery()
             ->getResult();
     }
 
-    /**
-     * Найти дочерние элементы для указанного родителя
-     */
-    public function findChildrenByParent(CatalogItem $parent): array
+    public function buildHierarchicalTree(): array
     {
-        return $this->createQueryBuilder('c')
-            ->where('c.parent = :parent')
-            ->setParameter('parent', $parent)
-            ->orderBy('c.sortOrder', 'ASC')
-            ->addOrderBy('c.name', 'ASC')
-            ->getQuery()
-            ->getResult();
-    }
-
-    /**
-     * Получить полное дерево каталога
-     */
-    public function findTree(): array
-    {
-        $allItems = $this->createQueryBuilder('c')
-            ->orderBy('c.sortOrder', 'ASC')
-            ->addOrderBy('c.name', 'ASC')
-            ->getQuery()
-            ->getResult();
-
-        return $this->buildTree($allItems);
-    }
-
-    /**
-     * Построить дерево из плоского массива элементов
-     */
-    private function buildTree(array $items, ?CatalogItem $parent = null): array
-    {
+        $items = $this->findAllSorted();
         $tree = [];
-        
+
         foreach ($items as $item) {
-            if ($item->getParent() === $parent) {
-                $children = $this->buildTree($items, $item);
-                if (!empty($children)) {
-                    $item->children = $children;
-                }
-                $tree[] = $item;
-            }
+            $this->addToTree($tree, $item);
         }
-        
+
         return $tree;
     }
 
-    /**
-     * Найти элементы по уровню в дереве
-     */
-    public function findByLevel(int $level): array
+    private function addToTree(array &$tree, CatalogItem $item): void
     {
-        $qb = $this->createQueryBuilder('c');
-        
-        // Строим запрос для поиска по уровню
-        for ($i = 0; $i < $level; $i++) {
-            if ($i === 0) {
-                $qb->join('c.parent', 'p' . $i);
-            } else {
-                $qb->join('p' . ($i - 1) . '.parent', 'p' . $i);
+        $baseType = $item->getBaseType() ?: 'Без категории';
+        $itemType = $item->getItem();
+        $location = $item->getLocation();
+        $mainItem = $item->getMainItem();
+        $itemName = $item->getItemName();
+
+        if (!isset($tree[$baseType])) {
+            $tree[$baseType] = [
+                'name' => $baseType,
+                'level' => 0,
+                'children' => [],
+                'items' => []
+            ];
+        }
+
+        $current = &$tree[$baseType];
+
+        if ($itemType) {
+            if (!isset($current['children'][$itemType])) {
+                $current['children'][$itemType] = [
+                    'name' => $itemType,
+                    'level' => 1,
+                    'children' => [],
+                    'items' => []
+                ];
+            }
+            $current = &$current['children'][$itemType];
+
+            if ($location) {
+                if (!isset($current['children'][$location])) {
+                    $current['children'][$location] = [
+                        'name' => $location,
+                        'level' => 2,
+                        'children' => [],
+                        'items' => []
+                    ];
+                }
+                $current = &$current['children'][$location];
+
+                if ($mainItem) {
+                    if (!isset($current['children'][$mainItem])) {
+                        $current['children'][$mainItem] = [
+                            'name' => $mainItem,
+                            'level' => 3,
+                            'children' => [],
+                            'items' => []
+                        ];
+                    }
+                    $current = &$current['children'][$mainItem];
+
+                    if ($itemName) {
+                        if (!isset($current['children'][$itemName])) {
+                            $current['children'][$itemName] = [
+                                'name' => $itemName,
+                                'level' => 4,
+                                'children' => [],
+                                'items' => []
+                            ];
+                        }
+                        $current = &$current['children'][$itemName];
+                    }
+                }
             }
         }
-        
-        if ($level === 0) {
-            $qb->where('c.parent IS NULL');
-        } else {
-            $qb->where('p' . ($level - 1) . '.parent IS NULL');
+
+        // Добавляем сам элемент в соответствующий узел
+        $current['items'][] = $item;
+    }
+
+    public function findByHierarchyLevel(int $level): array
+    {
+        $qb = $this->createQueryBuilder('c');
+
+        switch ($level) {
+            case 0: // Корневой уровень - только baseType
+                $qb->where('c.baseType IS NOT NULL')
+                   ->andWhere('c.item IS NULL');
+                break;
+            case 1: // Уровень 1 - baseType + item
+                $qb->where('c.baseType IS NOT NULL')
+                   ->andWhere('c.item IS NOT NULL')
+                   ->andWhere('c.location IS NULL');
+                break;
+            case 2: // Уровень 2 - baseType + item + location
+                $qb->where('c.baseType IS NOT NULL')
+                   ->andWhere('c.item IS NOT NULL')
+                   ->andWhere('c.location IS NOT NULL')
+                   ->andWhere('c.mainItem IS NULL');
+                break;
+            case 3: // Уровень 3 - baseType + item + location + mainItem
+                $qb->where('c.baseType IS NOT NULL')
+                   ->andWhere('c.item IS NOT NULL')
+                   ->andWhere('c.location IS NOT NULL')
+                   ->andWhere('c.mainItem IS NOT NULL')
+                   ->andWhere('c.itemName IS NULL');
+                break;
+            case 4: // Уровень 4 - все поля заполнены
+                $qb->where('c.baseType IS NOT NULL')
+                   ->andWhere('c.item IS NOT NULL')
+                   ->andWhere('c.location IS NOT NULL')
+                   ->andWhere('c.mainItem IS NOT NULL')
+                   ->andWhere('c.itemName IS NOT NULL');
+                break;
         }
-        
+
         return $qb->orderBy('c.sortOrder', 'ASC')
             ->addOrderBy('c.name', 'ASC')
             ->getQuery()
             ->getResult();
     }
 
-    /**
-     * Поиск элементов по названию
-     */
     public function findByNameLike(string $searchTerm): array
     {
         return $this->createQueryBuilder('c')
@@ -120,108 +166,81 @@ class CatalogItemRepository extends ServiceEntityRepository
             ->orWhere('c.synonym LIKE :searchTerm')
             ->orWhere('c.itemName LIKE :searchTerm')
             ->orWhere('c.mainItem LIKE :searchTerm')
+            ->orWhere('c.baseType LIKE :searchTerm')
+            ->orWhere('c.item LIKE :searchTerm')
+            ->orWhere('c.location LIKE :searchTerm')
             ->setParameter('searchTerm', '%' . $searchTerm . '%')
             ->orderBy('c.name', 'ASC')
             ->getQuery()
             ->getResult();
     }
 
-    /**
-     * Получить путь от корня до указанного элемента
-     */
-    public function getPathToRoot(CatalogItem $item): array
+    public function findByClothingType(string $clothingType): array
     {
-        $path = [];
-        $current = $item;
-        
-        while ($current !== null) {
-            array_unshift($path, $current);
-            $current = $current->getParent();
-        }
-        
-        return $path;
+        return $this->createQueryBuilder('c')
+            ->where('c.item = :clothingType')
+            ->setParameter('clothingType', $clothingType)
+            ->orderBy('c.location', 'ASC')
+            ->addOrderBy('c.mainItem', 'ASC')
+            ->addOrderBy('c.itemName', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 
-    /**
-     * Проверить, является ли один элемент потомком другого
-     */
-    public function isDescendantOf(CatalogItem $child, CatalogItem $ancestor): bool
+    public function findMainClothing(): array
     {
-        $current = $child->getParent();
-        
-        while ($current !== null) {
-            if ($current === $ancestor) {
-                return true;
-            }
-            $current = $current->getParent();
-        }
-        
-        return false;
+        return $this->findByClothingType('Основная одежда');
     }
 
-    /**
-     * Получить все потомки элемента
-     */
-    public function findDescendants(CatalogItem $parent): array
+    public function findOuterClothing(): array
     {
-        $descendants = [];
-        $this->collectDescendants($parent, $descendants);
-        return $descendants;
+        return $this->findByClothingType('Верхняя одежда');
     }
 
-    private function collectDescendants(CatalogItem $parent, array &$descendants): void
-    {
-        foreach ($parent->getChildren() as $child) {
-            $descendants[] = $child;
-            $this->collectDescendants($child, $descendants);
-        }
-    }
-
-    /**
-     * Получить максимальный порядок сортировки для дочерних элементов
-     */
-    public function getMaxSortOrderForParent(?CatalogItem $parent): int
-    {
-        $qb = $this->createQueryBuilder('c')
-            ->select('MAX(c.sortOrder)')
-            ->where('c.parent = :parent')
-            ->setParameter('parent', $parent);
-
-        if ($parent === null) {
-            $qb->where('c.parent IS NULL');
-        }
-
-        $result = $qb->getQuery()->getSingleScalarResult();
-        
-        return $result ? (int) $result : 0;
-    }
-
-    /**
-     * Найти элементы по сезонным критериям
-     */
-    public function findBySeasons(array $seasons): array
+    public function findBySeasons(array $seasons, ?string $clothingType = null): array
     {
         $qb = $this->createQueryBuilder('c');
         $conditions = [];
-        
-        foreach ($seasons as $seasonNumber) {
-            if ($seasonNumber >= 1 && $seasonNumber <= 8) {
-                $conditions[] = 'c.season' . $seasonNumber . ' = true';
+
+        // Определяем, какие поля сезонов использовать
+        $isOuterClothing = $clothingType === 'Верхняя одежда';
+        $prefix = $isOuterClothing ? 'outer' : '';
+
+        foreach ($seasons as $season) {
+            switch ($season) {
+                case 'warm_summer':
+                    $field = $prefix ? 'c.outerWarmSummer' : 'c.warmSummer';
+                    $conditions[] = $field . ' = true';
+                    break;
+                case 'cool_summer_warm_spring_autumn':
+                    $field = $prefix ? 'c.outerCoolSummerWarmSpringAutumn' : 'c.coolSummerWarmSpringAutumn';
+                    $conditions[] = $field . ' = true';
+                    break;
+                case 'cool_spring_autumn_warm_winter':
+                    $field = $prefix ? 'c.outerCoolSpringAutumnWarmWinter' : 'c.coolSpringAutumnWarmWinter';
+                    $conditions[] = $field . ' = true';
+                    break;
+                case 'cold_winter':
+                    $field = $prefix ? 'c.outerColdWinter' : 'c.coldWinter';
+                    $conditions[] = $field . ' = true';
+                    break;
             }
         }
-        
+
         if (!empty($conditions)) {
             $qb->where(implode(' OR ', $conditions));
         }
-        
+
+        if ($clothingType) {
+            $qb->andWhere('c.item = :clothingType')
+               ->setParameter('clothingType', $clothingType);
+        }
+
         return $qb->orderBy('c.name', 'ASC')
             ->getQuery()
             ->getResult();
     }
 
-    /**
-     * Статистика по каталогу
-     */
     public function getCatalogStats(): array
     {
         $totalItems = $this->createQueryBuilder('c')
@@ -229,25 +248,31 @@ class CatalogItemRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
-        $rootItems = $this->createQueryBuilder('c')
+        $mainClothingItems = $this->createQueryBuilder('c')
             ->select('COUNT(c.id)')
-            ->where('c.parent IS NULL')
+            ->where('c.item = :item')
+            ->setParameter('item', 'Основная одежда')
             ->getQuery()
             ->getSingleScalarResult();
 
-        $leafItems = $this->createQueryBuilder('c')
+        $outerClothingItems = $this->createQueryBuilder('c')
             ->select('COUNT(c.id)')
-            ->leftJoin('c.children', 'children')
-            ->having('COUNT(children.id) = 0')
-            ->groupBy('c.id')
+            ->where('c.item = :item')
+            ->setParameter('item', 'Верхняя одежда')
             ->getQuery()
-            ->getResult();
+            ->getSingleScalarResult();
+
+        $uniqueBaseTypes = $this->createQueryBuilder('c')
+            ->select('COUNT(DISTINCT c.baseType)')
+            ->where('c.baseType IS NOT NULL')
+            ->getQuery()
+            ->getSingleScalarResult();
 
         return [
             'total_items' => (int) $totalItems,
-            'root_items' => (int) $rootItems,
-            'leaf_items' => count($leafItems),
-            'branch_items' => (int) $totalItems - count($leafItems)
+            'main_clothing_items' => (int) $mainClothingItems,
+            'outer_clothing_items' => (int) $outerClothingItems,
+            'unique_base_types' => (int) $uniqueBaseTypes
         ];
     }
 }

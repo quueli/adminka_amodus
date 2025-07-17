@@ -20,32 +20,25 @@
             </div>
             <div class="card-body">
                 {{ form_start(form) }}
-                
+
                 <div class="row">
                     <!-- Basic Information -->
                     <div class="col-md-6">
                         <h6 class="text-primary mb-3">
                             <i class="fas fa-info-circle"></i> {{ 'basic_information'|trans }}
                         </h6>
-                        
+
+
                         <div class="mb-3">
                             {{ form_label(form.name) }}
                             {{ form_widget(form.name) }}
                             {{ form_errors(form.name) }}
                         </div>
 
-                        <div class="mb-3">
-                            {{ form_label(form.parent) }}
-                            {{ form_widget(form.parent) }}
-                            {{ form_errors(form.parent) }}
-                            <div class="form-text">{{ 'select_parent_item_help'|trans }}</div>
-                        </div>
 
-                        <div class="mb-3">
-                            {{ form_label(form.sortOrder) }}
-                            {{ form_widget(form.sortOrder) }}
-                            {{ form_errors(form.sortOrder) }}
-                        </div>
+
+
+
                     </div>
 
                     <!-- Excel Structure Fields -->
@@ -53,7 +46,7 @@
                         <h6 class="text-success mb-3">
                             <i class="fas fa-table"></i> {{ 'catalog_structure'|trans }}
                         </h6>
-                        
+
                         <div class="mb-3">
                             {{ form_label(form.baseType) }}
                             {{ form_widget(form.baseType) }}
@@ -98,7 +91,7 @@
                         <h6 class="text-info mb-3">
                             <i class="fas fa-plus-circle"></i> {{ 'additional_information'|trans }}
                         </h6>
-                        
+
                         <div class="mb-3">
                             {{ form_label(form.synonym) }}
                             {{ form_widget(form.synonym) }}
@@ -118,16 +111,83 @@
                         <h6 class="text-warning mb-3">
                             <i class="fas fa-calendar-alt"></i> {{ 'seasons'|trans }}
                         </h6>
-                        
-                        <div class="row">
-                            {% for i in 1..8 %}
+
+                        <!-- Сезоны для основной одежды -->
+                        <div class="mb-3">
+                            <h6 class="text-success mb-2">{{ 'main_clothing_seasons'|trans }}</h6>
+                            <div class="row">
                                 <div class="col-md-6 mb-2">
                                     <div class="form-check">
-                                        {{ form_widget(form['season' ~ i]) }}
-                                        {{ form_label(form['season' ~ i]) }}
+                                        {{ form_widget(form.warmSummer) }}
+                                        <label class="form-check-label" for="{{ form.warmSummer.vars.id }}">
+                                            теплое Лето
+                                        </label>
                                     </div>
                                 </div>
-                            {% endfor %}
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        {{ form_widget(form.coolSummerWarmSpringAutumn) }}
+                                        <label class="form-check-label" for="{{ form.coolSummerWarmSpringAutumn.vars.id }}">
+                                            холодное Лето / теплая Весна-Осень
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        {{ form_widget(form.coolSpringAutumnWarmWinter) }}
+                                        <label class="form-check-label" for="{{ form.coolSpringAutumnWarmWinter.vars.id }}">
+                                            холодная Весна-Осень / теплая Зима
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        {{ form_widget(form.coldWinter) }}
+                                        <label class="form-check-label" for="{{ form.coldWinter.vars.id }}">
+                                            холодная Зима
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Сезоны для верхней одежды -->
+                        <div class="mb-3">
+                            <h6 class="text-info mb-2">{{ 'outer_clothing_seasons'|trans }}</h6>
+                            <div class="row">
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        {{ form_widget(form.outerWarmSummer) }}
+                                        <label class="form-check-label" for="{{ form.outerWarmSummer.vars.id }}">
+                                            теплое Лето (верхняя)
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        {{ form_widget(form.outerCoolSummerWarmSpringAutumn) }}
+                                        <label class="form-check-label" for="{{ form.outerCoolSummerWarmSpringAutumn.vars.id }}">
+                                            холодное Лето / теплая Весна-Осень (верхняя)
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        {{ form_widget(form.outerCoolSpringAutumnWarmWinter) }}
+                                        <label class="form-check-label" for="{{ form.outerCoolSpringAutumnWarmWinter.vars.id }}">
+                                            холодная Весна-Осень / теплая Зима (верхняя)
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <div class="form-check">
+                                        {{ form_widget(form.outerColdWinter) }}
+                                        <label class="form-check-label" for="{{ form.outerColdWinter.vars.id }}">
+                                            холодная Зима (верхняя)
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -147,16 +207,13 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-focus on name field
     const nameField = document.querySelector('#catalog_item_name');
     if (nameField) {
         nameField.focus();
     }
 
-    // Season checkboxes helper
     const seasonCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="catalog_item_season"]');
     if (seasonCheckboxes.length > 0) {
-        // Add "Select All" / "Deselect All" functionality
         const seasonsContainer = seasonCheckboxes[0].closest('.col-md-6');
         if (seasonsContainer) {
             const headerElement = seasonsContainer.querySelector('h6');
@@ -173,7 +230,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
                 headerElement.parentNode.insertBefore(toggleButtons, headerElement.nextSibling);
 
-                // Add event listeners
                 document.getElementById('selectAllSeasons').addEventListener('click', function() {
                     seasonCheckboxes.forEach(checkbox => checkbox.checked = true);
                 });

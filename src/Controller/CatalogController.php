@@ -24,28 +24,25 @@ class CatalogController extends BaseController
     public function index(Request $request): Response
     {
         $search = $request->query->get('search');
-        $parentId = $request->query->get('parent');
-        
+        $clothingType = $request->query->get('clothing_type');
+
         if ($search) {
             $items = $this->catalogRepository->findByNameLike($search);
-            $tree = [];
-        } elseif ($parentId) {
-            $parent = $this->catalogRepository->find($parentId);
-            $items = $parent ? $this->catalogRepository->findChildrenByParent($parent) : [];
-            $tree = [];
+        } elseif ($clothingType) {
+            $items = $this->catalogRepository->findByClothingType($clothingType);
         } else {
-            $items = $this->catalogRepository->findRootItems();
-            $tree = $this->catalogRepository->findTree();
+            $items = $this->catalogRepository->findAllSorted();
         }
 
         $stats = $this->catalogRepository->getCatalogStats();
+        $tree = $this->catalogRepository->buildHierarchicalTree();
 
         return $this->render('catalog/index.html.twig', [
             'items' => $items,
             'tree' => $tree,
             'stats' => $stats,
             'search' => $search,
-            'currentParent' => $parentId ? $this->catalogRepository->find($parentId) : null
+            'clothingType' => $clothingType
         ]);
     }
 
@@ -53,30 +50,18 @@ class CatalogController extends BaseController
     public function create(Request $request): Response
     {
         $catalogItem = new CatalogItem();
-        
-        // Если указан родительский элемент в параметрах
-        $parentId = $request->query->get('parent');
-        if ($parentId) {
-            $parent = $this->catalogRepository->find($parentId);
-            if ($parent) {
-                $catalogItem->setParent($parent);
-                // Устанавливаем следующий порядок сортировки
-                $maxOrder = $this->catalogRepository->getMaxSortOrderForParent($parent);
-                $catalogItem->setSortOrder($maxOrder + 1);
-            }
-        }
 
         $form = $this->createForm(CatalogItemType::class, $catalogItem);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $catalogItem->setUpdatedAt(new \DateTime());
-            
+
             $this->entityManager->persist($catalogItem);
             $this->entityManager->flush();
 
             $this->addFlash('success', 'catalog_item_created_successfully');
-            
+
             return $this->redirectToRoute('catalog_index');
         }
 
@@ -89,13 +74,8 @@ class CatalogController extends BaseController
     #[Route('/show/{id}', name: 'catalog_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function show(CatalogItem $catalogItem): Response
     {
-        $children = $this->catalogRepository->findChildrenByParent($catalogItem);
-        $path = $this->catalogRepository->getPathToRoot($catalogItem);
-        
         return $this->render('catalog/view.html.twig', [
-            'catalogItem' => $catalogItem,
-            'children' => $children,
-            'path' => $path
+            'catalogItem' => $catalogItem
         ]);
     }
 
@@ -142,24 +122,19 @@ class CatalogController extends BaseController
     #[Route('/delete/{id}', name: 'catalog_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function delete(Request $request, CatalogItem $catalogItem): Response
     {
-        return $this->deleteEntity(
-            $catalogItem,
-            $request,
-            'delete' . $catalogItem->getId(),
-            'catalog_item_deleted_successfully',
-            'catalog_index'
-        );
+        if ($this->isCsrfTokenValid('delete' . $catalogItem->getId(), $request->request->get('_token'))) {
+            $this->entityManager->remove($catalogItem);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'catalog_item_deleted_successfully');
+        } else {
+            $this->addFlash('error', 'invalid_csrf_token');
+        }
+
+        return $this->redirectToRoute('catalog_index');
     }
 
-    #[Route('/tree', name: 'catalog_tree', methods: ['GET'])]
-    public function tree(): Response
-    {
-        $tree = $this->catalogRepository->findTree();
-        
-        return $this->render('catalog/tree.html.twig', [
-            'tree' => $tree
-        ]);
-    }
+
 
     #[Route('/move/{id}', name: 'catalog_move', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function move(Request $request, CatalogItem $catalogItem): Response
@@ -183,19 +158,35 @@ class CatalogController extends BaseController
         return $this->redirectToRoute('catalog_show', ['id' => $catalogItem->getId()]);
     }
 
-    #[Route('/api/children/{id}', name: 'catalog_api_children', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function apiChildren(CatalogItem $catalogItem): Response
+    #[Route('/tree', name: 'catalog_tree', methods: ['GET'])]
+    public function tree(): Response
     {
-        $children = $this->catalogRepository->findChildrenByParent($catalogItem);
-        
+        $tree = $this->catalogRepository->buildHierarchicalTree();
+        $stats = $this->catalogRepository->getCatalogStats();
+
+        return $this->render('catalog/tree.html.twig', [
+            'tree' => $tree,
+            'stats' => $stats
+        ]);
+    }
+
+    #[Route('/api/seasons', name: 'catalog_api_seasons', methods: ['GET'])]
+    public function apiSeasons(Request $request): Response
+    {
+        $seasons = $request->query->all('seasons');
+        $clothingType = $request->query->get('clothing_type');
+
+        $items = $this->catalogRepository->findBySeasons($seasons, $clothingType);
+
         $data = array_map(function (CatalogItem $item) {
             return [
                 'id' => $item->getId(),
                 'name' => $item->getName(),
-                'hasChildren' => $item->hasChildren(),
-                'level' => $item->getLevel()
+                'hierarchyPath' => $item->getHierarchyPath(),
+                'applicableSeasons' => $item->getApplicableSeasons(),
+                'clothingType' => $item->getItem()
             ];
-        }, $children);
+        }, $items);
 
         return $this->json($data);
     }

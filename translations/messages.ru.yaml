@@ -142,7 +142,6 @@ characteristics_and_values: 'Характеристики и значения'
 no_characteristics_assigned: 'Характеристики не назначены'
 nomenclature_metadata: 'Метаданные номенклатуры'
 
-# Catalog translations
 catalog: 'Каталог'
 catalog_management: 'Управление каталогом'
 catalog_item: 'Элемент каталога'
@@ -158,7 +157,6 @@ no_catalog_items_found: 'Элементы каталога не найдены'
 create_first_catalog_item: 'Создать первый элемент каталога'
 enter_catalog_item_name: 'Введите название элемента каталога'
 
-# Catalog tree structure
 parent_item: 'Родительский элемент'
 select_parent_item: 'Выберите родительский элемент'
 child_items: 'Дочерние элементы'
@@ -168,7 +166,6 @@ root_items: 'Корневые элементы'
 level: 'Уровень'
 path: 'Путь'
 
-# Catalog fields from Excel structure
 base_type: 'Тип базы'
 enter_base_type: 'Введите тип базы'
 item_category: 'Вещь'
@@ -182,7 +179,6 @@ enter_item_name: 'Введите название предмета'
 layer: 'Слой'
 enter_layer: 'Введите слой'
 
-# Additional fields
 synonym: 'Синонимы'
 enter_synonym: 'Введите синонимы'
 construction_details: 'Детали конструкции'
@@ -190,37 +186,22 @@ enter_construction_details: 'Введите детали конструкции'
 sort_order: 'Порядок сортировки'
 enter_sort_order: 'Введите порядок сортировки'
 
-# Seasonal fields
-season_1: 'Сезон 1'
-season_2: 'Сезон 2'
-season_3: 'Сезон 3'
-season_4: 'Сезон 4'
-season_5: 'Сезон 5'
-season_6: 'Сезон 6'
-season_7: 'Сезон 7'
-season_8: 'Сезон 8'
-seasons: 'Сезоны'
-
-# Success messages
 catalog_item_created_successfully: 'Элемент каталога успешно создан!'
 catalog_item_updated_successfully: 'Элемент каталога успешно обновлен!'
 catalog_item_deleted_successfully: 'Элемент каталога успешно удален!'
 catalog_item_moved_successfully: 'Элемент каталога успешно перемещен!'
 
-# Error messages
 catalog_item_cannot_be_parent_of_itself: 'Элемент каталога не может быть родителем самого себя'
 catalog_item_cannot_be_parent_of_descendant: 'Элемент каталога не может быть родителем своего потомка'
 catalog_item_cannot_be_moved_to_descendant: 'Элемент каталога нельзя переместить к своему потомку'
 are_you_sure_delete_catalog_item: 'Вы уверены, что хотите удалить этот элемент каталога? Это действие нельзя отменить.'
 
-# Statistics
 catalog_statistics: 'Статистика каталога'
 total_items: 'Всего элементов'
 root_items_count: 'Корневых элементов'
 leaf_items: 'Конечных элементов'
 branch_items: 'Ветвящихся элементов'
 
-# Additional catalog translations
 back_to_catalog: 'Назад к каталогу'
 add_child_item: 'Добавить дочерний элемент'
 editing_item: 'Редактирование элемента'
@@ -238,7 +219,6 @@ item_has_children_warning: 'У этого элемента есть %count% до
 parent_change_affects_children: 'Изменение родителя повлияет на всех потомков.'
 warning: 'Предупреждение'
 
-# Tree view translations
 list_view: 'Список'
 tree_legend: 'Легенда дерева'
 branch_node: 'Узел с детьми'
@@ -254,5 +234,3 @@ hide_details: 'Скрыть детали'
 catalog_tree_structure: 'Структура дерева каталога'
 create_first_catalog_item_to_see_tree: 'Создайте первый элемент каталога, чтобы увидеть дерево'
 search_catalog_items: 'Поиск элементов каталога'
-
-# Form helpers

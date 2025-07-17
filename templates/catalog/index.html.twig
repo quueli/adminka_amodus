@@ -17,9 +17,8 @@
     </div>
 </div>
 
-<!-- Search and Navigation -->
 <div class="row mb-4">
-    <div class="col-md-8">
+    <div class="col-md-6">
         <form method="GET" class="d-flex">
             <input type="text" name="search" class="form-control me-2" 
                    placeholder="{{ 'search_catalog_items'|trans }}" 
@@ -34,87 +33,41 @@
             {% endif %}
         </form>
     </div>
-    <div class="col-md-4">
-        {% if currentParent %}
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="{{ path('catalog_index') }}">{{ 'catalog'|trans }}</a>
-                    </li>
-                    {% for pathItem in currentParent.path %}
-                        {% if not loop.last %}
-                            <li class="breadcrumb-item">
-                                <a href="{{ path('catalog_index', {'parent': pathItem.id}) }}">
-                                    {{ pathItem.name }}
-                                </a>
-                            </li>
-                        {% else %}
-                            <li class="breadcrumb-item active">{{ pathItem.name }}</li>
-                        {% endif %}
-                    {% endfor %}
-                </ol>
-            </nav>
-        {% endif %}
+    <div class="col-md-6">
+        <div class="d-flex gap-2">
+            <select class="form-select" id="clothingTypeFilter" onchange="filterByClothingType()">
+                <option value="">{{ 'all_clothing_types'|trans }}</option>
+                <option value="Основная одежда" {% if clothingType == 'Основная одежда' %}selected{% endif %}>{{ 'main_clothing'|trans }}</option>
+                <option value="Верхняя одежда" {% if clothingType == 'Верхняя одежда' %}selected{% endif %}>{{ 'outer_clothing'|trans }}</option>
+            </select>
+            
+            <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#seasonFilterModal">
+                <i class="fas fa-filter"></i> {{ 'season_filter'|trans }}
+            </button>
+        </div>
     </div>
 </div>
 
-<!-- Statistics -->
 <div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card bg-primary text-white">
+    <div class="col-md-12">
+        <div class="card">
             <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>{{ 'total_items'|trans }}</h5>
-                        <h3>{{ stats.total_items }}</h3>
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <h5 class="text-primary">{{ stats.total_items }}</h5>
+                        <small class="text-muted">{{ 'total_items'|trans }}</small>
                     </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-list fa-2x"></i>
+                    <div class="col-md-3">
+                        <h5 class="text-success">{{ stats.main_clothing_items }}</h5>
+                        <small class="text-muted">{{ 'main_clothing'|trans }}</small>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>{{ 'root_items_count'|trans }}</h5>
-                        <h3>{{ stats.root_items }}</h3>
+                    <div class="col-md-3">
+                        <h5 class="text-info">{{ stats.outer_clothing_items }}</h5>
+                        <small class="text-muted">{{ 'outer_clothing'|trans }}</small>
                     </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-tree fa-2x"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card bg-info text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>{{ 'leaf_items'|trans }}</h5>
-                        <h3>{{ stats.leaf_items }}</h3>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-leaf fa-2x"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card bg-warning text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>{{ 'branch_items'|trans }}</h5>
-                        <h3>{{ stats.branch_items }}</h3>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-code-branch fa-2x"></i>
+                    <div class="col-md-3">
+                        <h5 class="text-warning">{{ stats.unique_base_types }}</h5>
+                        <small class="text-muted">{{ 'unique_types'|trans }}</small>
                     </div>
                 </div>
             </div>
@@ -122,84 +75,252 @@
     </div>
 </div>
 
-<!-- Catalog Items -->
-{% if items|length > 0 %}
-    <div class="card">
-        <div class="card-body p-0">
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-list"></i> 
+            {% if search %}
+                {{ 'search_results'|trans }}: "{{ search }}"
+            {% elseif clothingType %}
+                {{ clothingType }}
+            {% else %}
+                {{ 'catalog_items'|trans }}
+            {% endif %}
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if items is not empty %}
             <div class="table-responsive">
-                <table class="table table-striped table-hover mb-0">
+                <table class="table table-hover">
                     <thead class="table-dark">
                         <tr>
-                            <th style="color: white;">{{ 'id'|trans }}</th>
                             <th style="color: white;">{{ 'name'|trans }}</th>
-                            <th style="color: white;">{{ 'base_type'|trans }}</th>
+                            <th style="color: white;">{{ 'hierarchy_path'|trans }}</th>
                             <th style="color: white;">{{ 'layer'|trans }}</th>
-                            <th style="color: white;">{{ 'level'|trans }}</th>
-                            <th style="color: white;">{{ 'child_items'|trans }}</th>
-                            <th style="color: white;">{{ 'created_at'|trans }}</th>
+                            <th style="color: white;">{{ 'seasons'|trans }}</th>
                             <th style="color: white;">{{ 'actions'|trans }}</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for item in items %}
                             <tr>
-                                <td><strong>{{ item.id }}</strong></td>
                                 <td>
-                                    {% set level = item.level %}
-                                    {% if level > 0 %}
-                                        <span class="text-muted">
-                                            {% for i in 1..level %}—{% endfor %}
-                                        </span>
-                                    {% endif %}
-                                    <a href="{{ path('catalog_show', {'id': item.id}) }}" class="text-decoration-none">
-                                        {{ item.name }}
-                                    </a>
-                                    {% if item.hasChildren %}
-                                        <span class="badge bg-secondary ms-2">
-                                            {{ item.children|length }}
-                                        </span>
+                                    <strong>{{ item.name }}</strong>
+                                    {% if item.synonym %}
+                                        <br><small class="text-muted">{{ item.synonym }}</small>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% if item.baseType %}
-                                        <span class="badge bg-info">{{ item.baseType }}</span>
-                                    {% else %}
-                                        <span class="text-muted">{{ 'not_specified'|trans }}</span>
-                                    {% endif %}
+                                    <small class="text-muted">{{ item.hierarchyPath }}</small>
                                 </td>
                                 <td>
                                     {% if item.layer %}
-                                        <span class="badge bg-warning text-dark">{{ item.layer }}</span>
-                                    {% else %}
-                                        <span class="text-muted">-</span>
+                                        <span class="badge bg-secondary">{{ item.layer }}</span>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <span class="badge bg-primary">{{ level }}</span>
+                                    {% set seasons = item.applicableSeasons %}
+                                    {% if seasons is not empty %}
+                                        {% for season in seasons %}
+                                            {% if season == 'warm_summer' %}
+                                                <span class="badge bg-warning text-dark">{{ 'warm_summer'|trans }}</span>
+                                            {% elseif season == 'cool_summer_warm_spring_autumn' %}
+                                                <span class="badge bg-info">{{ 'cool_summer_warm_spring_autumn'|trans }}</span>
+                                            {% elseif season == 'cool_spring_autumn_warm_winter' %}
+                                                <span class="badge bg-primary">{{ 'cool_spring_autumn_warm_winter'|trans }}</span>
+                                            {% elseif season == 'cold_winter' %}
+                                                <span class="badge bg-dark">{{ 'cold_winter'|trans }}</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="text-muted">{{ 'no_seasons'|trans }}</span>
+                                    {% endif %}
                                 </td>
                                 <td>
-                                    {% if item.hasChildren %}
-                                        <a href="{{ path('catalog_index', {'parent': item.id}) }}" 
-                                           class="btn btn-sm btn-outline-info">
-                                            <i class="fas fa-folder-open"></i> {{ item.children|length }}
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ path('catalog_show', {'id': item.id}) }}" 
+                                           class="btn btn-sm btn-outline-info" 
+                                           title="{{ 'view'|trans }}">
+                                            <i class="fas fa-eye"></i>
                                         </a>
-                                    {% else %}
-                                        <span class="text-muted">{{ 'no_children'|trans }}</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ item.createdAt|date('Y-m-d H:i') }}</td>
-                                <td>
-                                    {{ form_macros.action_buttons('catalog_edit', 'catalog_show', 'catalog_delete', item.id, item.name) }}
+                                        <a href="{{ path('catalog_edit', {'id': item.id}) }}" 
+                                           class="btn btn-sm btn-outline-warning" 
+                                           title="{{ 'edit'|trans }}">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-danger" 
+                                                onclick="confirmDelete({{ item.id }}, '{{ item.name|e('js') }}')"
+                                                title="{{ 'delete'|trans }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">{{ 'no_items_found'|trans }}</h5>
+                {% if search or clothingType %}
+                    <p class="text-muted">{{ 'try_different_search'|trans }}</p>
+                    <a href="{{ path('catalog_index') }}" class="btn btn-primary">{{ 'show_all_items'|trans }}</a>
+                {% else %}
+                    <p class="text-muted">{{ 'start_by_creating_item'|trans }}</p>
+                    <a href="{{ path('catalog_create') }}" class="btn btn-success-custom">
+                        <i class="fas fa-plus"></i> {{ 'create_first_item'|trans }}
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="modal fade" id="seasonFilterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ 'season_filter'|trans }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="seasonFilterForm">
+                    <div class="mb-3">
+                        <label class="form-label">{{ 'clothing_type'|trans }}</label>
+                        <select class="form-select" name="clothing_type" id="seasonClothingType">
+                            <option value="">{{ 'all_types'|trans }}</option>
+                            <option value="Основная одежда">{{ 'main_clothing'|trans }}</option>
+                            <option value="Верхняя одежда">{{ 'outer_clothing'|trans }}</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">{{ 'seasons'|trans }}</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="seasons[]" value="warm_summer" id="filterWarmSummer">
+                            <label class="form-check-label" for="filterWarmSummer">{{ 'warm_summer'|trans }}</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="seasons[]" value="cool_summer_warm_spring_autumn" id="filterCoolSummerWarmSpringAutumn">
+                            <label class="form-check-label" for="filterCoolSummerWarmSpringAutumn">{{ 'cool_summer_warm_spring_autumn'|trans }}</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="seasons[]" value="cool_spring_autumn_warm_winter" id="filterCoolSpringAutumnWarmWinter">
+                            <label class="form-check-label" for="filterCoolSpringAutumnWarmWinter">{{ 'cool_spring_autumn_warm_winter'|trans }}</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="seasons[]" value="cold_winter" id="filterColdWinter">
+                            <label class="form-check-label" for="filterColdWinter">{{ 'cold_winter'|trans }}</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'cancel'|trans }}</button>
+                <button type="button" class="btn btn-primary" onclick="applySeasonFilter()">{{ 'apply_filter'|trans }}</button>
+            </div>
         </div>
     </div>
-{% else %}
-    {{ form_macros.empty_state('no_catalog_items_found', 'catalog_create', 'create_first_catalog_item') }}
-{% endif %}
+</div>
 
+<script>
+function filterByClothingType() {
+    const select = document.getElementById('clothingTypeFilter');
+    const clothingType = select.value;
+    
+    if (clothingType) {
+        window.location.href = '{{ path('catalog_index') }}?clothing_type=' + encodeURIComponent(clothingType);
+    } else {
+        window.location.href = '{{ path('catalog_index') }}';
+    }
+}
+
+function applySeasonFilter() {
+    const form = document.getElementById('seasonFilterForm');
+    const formData = new FormData(form);
+    const params = new URLSearchParams();
+    
+    const clothingType = formData.get('clothing_type');
+    if (clothingType) {
+        params.append('clothing_type', clothingType);
+    }
+    
+    const seasons = formData.getAll('seasons[]');
+    seasons.forEach(season => {
+        params.append('seasons[]', season);
+    });
+    
+    fetch('{{ path('catalog_api_seasons') }}?' + params.toString())
+        .then(response => response.json())
+        .then(data => {
+            updateTableWithResults(data);
+            bootstrap.Modal.getInstance(document.getElementById('seasonFilterModal')).hide();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('{{ 'error_occurred'|trans }}');
+        });
+}
+
+function updateTableWithResults(items) {
+    const form = document.getElementById('seasonFilterForm');
+    const formData = new FormData(form);
+    const params = new URLSearchParams();
+    
+    const clothingType = formData.get('clothing_type');
+    if (clothingType) {
+        params.append('clothing_type', clothingType);
+    }
+    
+    const seasons = formData.getAll('seasons[]');
+    seasons.forEach(season => {
+        params.append('seasons[]', season);
+    });
+    
+    window.location.href = '{{ path('catalog_index') }}?' + params.toString();
+}
+
+function confirmDelete(id, name) {
+    if (confirm('{{ 'confirm_delete'|trans }}: ' + name + '?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/catalog/delete/' + id;
+
+        fetch('/catalog/api/csrf-token?id=' + id)
+            .then(response => response.json())
+            .then(data => {
+                const tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = '_token';
+                tokenInput.value = data.token;
+                form.appendChild(tokenInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            })
+            .catch(error => {
+                const tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = '_token';
+                tokenInput.value = generateCsrfToken('delete' + id);
+                form.appendChild(tokenInput);
+
+                document.body.appendChild(form);
+                form.submit();
+            });
+    }
+}
+
+function generateCsrfToken(intention) {
+    const tokens = {
+        {% for i in 1..100 %}
+        'delete{{ i }}': '{{ csrf_token('delete' ~ i) }}'{% if not loop.last %},{% endif %}
+        {% endfor %}
+    };
+    return tokens[intention] || '{{ csrf_token('delete') }}';
+}
+</script>
 {% endblock %}

@@ -3,10 +3,9 @@
 namespace App\Form;
 
 use App\Entity\CatalogItem;
-use App\Repository\CatalogItemRepository;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -26,37 +25,15 @@ class CatalogItemType extends AbstractType
                     'class' => 'form-control'
                 ]
             ])
-            ->add('parent', EntityType::class, [
-                'class' => CatalogItem::class,
-                'choice_label' => function (CatalogItem $item) {
-                    $level = $item->getLevel();
-                    $prefix = str_repeat('— ', $level);
-                    return $prefix . $item->getName();
-                },
-                'placeholder' => 'select_parent_item',
-                'required' => false,
-                'label' => 'parent_item',
-                'attr' => ['class' => 'form-select'],
-                'query_builder' => function (CatalogItemRepository $repository) use ($options) {
-                    $qb = $repository->createQueryBuilder('c')
-                        ->orderBy('c.name', 'ASC');
-                    
-                    // Исключаем текущий элемент и его потомков при редактировании
-                    if ($options['data'] && $options['data']->getId()) {
-                        $qb->where('c.id != :currentId')
-                           ->setParameter('currentId', $options['data']->getId());
-                    }
-                    
-                    return $qb;
-                }
-            ])
-            ->add('baseType', TextType::class, [
+            ->add('baseType', ChoiceType::class, [
                 'label' => 'base_type',
                 'required' => false,
-                'attr' => [
-                    'placeholder' => 'enter_base_type',
-                    'class' => 'form-control'
-                ]
+                'choices' => [
+                    'Фасон' => 'Фасон',
+                    'Модель' => 'Модель',
+                ],
+                'placeholder' => 'select_base_type',
+                'attr' => ['class' => 'form-select']
             ])
             ->add('item', TextType::class, [
                 'label' => 'item_category',
@@ -115,25 +92,53 @@ class CatalogItemType extends AbstractType
                     'placeholder' => 'enter_construction_details',
                     'class' => 'form-control'
                 ]
-            ])
-            ->add('sortOrder', IntegerType::class, [
-                'label' => 'sort_order',
-                'required' => false,
-                'attr' => [
-                    'placeholder' => 'enter_sort_order',
-                    'class' => 'form-control',
-                    'min' => 0
-                ]
             ]);
 
-        // Добавляем сезонные поля
-        for ($i = 1; $i <= 8; $i++) {
-            $builder->add('season' . $i, CheckboxType::class, [
-                'label' => 'season_' . $i,
+        // Сезоны для основной одежды
+        $builder
+            ->add('warmSummer', CheckboxType::class, [
+                'label' => 'warm_summer',
+                'required' => false,
+                'attr' => ['class' => 'form-check-input']
+            ])
+            ->add('coolSummerWarmSpringAutumn', CheckboxType::class, [
+                'label' => 'cool_summer_warm_spring_autumn',
+                'required' => false,
+                'attr' => ['class' => 'form-check-input']
+            ])
+            ->add('coolSpringAutumnWarmWinter', CheckboxType::class, [
+                'label' => 'cool_spring_autumn_warm_winter',
+                'required' => false,
+                'attr' => ['class' => 'form-check-input']
+            ])
+            ->add('coldWinter', CheckboxType::class, [
+                'label' => 'cold_winter',
                 'required' => false,
                 'attr' => ['class' => 'form-check-input']
             ]);
-        }
+
+        // Сезоны для верхней одежды
+        $builder
+            ->add('outerWarmSummer', CheckboxType::class, [
+                'label' => 'outer_warm_summer',
+                'required' => false,
+                'attr' => ['class' => 'form-check-input']
+            ])
+            ->add('outerCoolSummerWarmSpringAutumn', CheckboxType::class, [
+                'label' => 'outer_cool_summer_warm_spring_autumn',
+                'required' => false,
+                'attr' => ['class' => 'form-check-input']
+            ])
+            ->add('outerCoolSpringAutumnWarmWinter', CheckboxType::class, [
+                'label' => 'outer_cool_spring_autumn_warm_winter',
+                'required' => false,
+                'attr' => ['class' => 'form-check-input']
+            ])
+            ->add('outerColdWinter', CheckboxType::class, [
+                'label' => 'outer_cold_winter',
+                'required' => false,
+                'attr' => ['class' => 'form-check-input']
+            ]);
 
         $builder->add('save', SubmitType::class, [
             'label' => 'save',

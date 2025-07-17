@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\CatalogItemRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -24,62 +22,52 @@ class CatalogItem
     private ?string $name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $baseType = null; // Тип базы
+    private ?string $baseType = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $item = null; // Вещь
+    private ?string $item = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $location = null; // Место расположения
+    private ?string $location = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $mainItem = null; // Главный предмет
+    private ?string $mainItem = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $itemName = null; // Предмет
+    private ?string $itemName = null;
 
     #[ORM\Column(length: 10, nullable: true)]
-    private ?string $layer = null; // Слой
-
-    // Seasonal columns (8 seasons)
-    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
-    private ?bool $season1 = null;
+    private ?string $layer = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
-    private ?bool $season2 = null;
+    private ?bool $warmSummer = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
-    private ?bool $season3 = null;
+    private ?bool $coolSummerWarmSpringAutumn = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
-    private ?bool $season4 = null;
+    private ?bool $coolSpringAutumnWarmWinter = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
-    private ?bool $season5 = null;
+    private ?bool $coldWinter = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
-    private ?bool $season6 = null;
+    private ?bool $outerWarmSummer = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
-    private ?bool $season7 = null;
+    private ?bool $outerCoolSummerWarmSpringAutumn = null;
 
     #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
-    private ?bool $season8 = null;
+    private ?bool $outerCoolSpringAutumnWarmWinter = null;
 
-    // Additional fields as requested
+    #[ORM\Column(type: Types::BOOLEAN, nullable: true)]
+    private ?bool $outerColdWinter = null;
+
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $synonym = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $constructionDetails = null;
-
-    // Adjacency list fields for tree structure
-    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
-    #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id', onDelete: 'CASCADE')]
-    private ?self $parent = null;
-
-    #[ORM\OneToMany(mappedBy: 'parent', targetEntity: self::class, cascade: ['persist', 'remove'])]
-    private Collection $children;
 
     #[ORM\Column(type: Types::INTEGER, nullable: true)]
     private ?int $sortOrder = null;
@@ -92,7 +80,6 @@ class CatalogItem
 
     public function __construct()
     {
-        $this->children = new ArrayCollection();
         $this->createdAt = new \DateTime();
     }
 
@@ -178,92 +165,91 @@ class CatalogItem
         return $this;
     }
 
-    // Season getters and setters
-    public function getSeason1(): ?bool
+    public function getWarmSummer(): ?bool
     {
-        return $this->season1;
+        return $this->warmSummer;
     }
 
-    public function setSeason1(?bool $season1): static
+    public function setWarmSummer(?bool $warmSummer): static
     {
-        $this->season1 = $season1;
+        $this->warmSummer = $warmSummer;
         return $this;
     }
 
-    public function getSeason2(): ?bool
+    public function getCoolSummerWarmSpringAutumn(): ?bool
     {
-        return $this->season2;
+        return $this->coolSummerWarmSpringAutumn;
     }
 
-    public function setSeason2(?bool $season2): static
+    public function setCoolSummerWarmSpringAutumn(?bool $coolSummerWarmSpringAutumn): static
     {
-        $this->season2 = $season2;
+        $this->coolSummerWarmSpringAutumn = $coolSummerWarmSpringAutumn;
         return $this;
     }
 
-    public function getSeason3(): ?bool
+    public function getCoolSpringAutumnWarmWinter(): ?bool
     {
-        return $this->season3;
+        return $this->coolSpringAutumnWarmWinter;
     }
 
-    public function setSeason3(?bool $season3): static
+    public function setCoolSpringAutumnWarmWinter(?bool $coolSpringAutumnWarmWinter): static
     {
-        $this->season3 = $season3;
+        $this->coolSpringAutumnWarmWinter = $coolSpringAutumnWarmWinter;
         return $this;
     }
 
-    public function getSeason4(): ?bool
+    public function getColdWinter(): ?bool
     {
-        return $this->season4;
+        return $this->coldWinter;
     }
 
-    public function setSeason4(?bool $season4): static
+    public function setColdWinter(?bool $coldWinter): static
     {
-        $this->season4 = $season4;
+        $this->coldWinter = $coldWinter;
         return $this;
     }
 
-    public function getSeason5(): ?bool
+    public function getOuterWarmSummer(): ?bool
     {
-        return $this->season5;
+        return $this->outerWarmSummer;
     }
 
-    public function setSeason5(?bool $season5): static
+    public function setOuterWarmSummer(?bool $outerWarmSummer): static
     {
-        $this->season5 = $season5;
+        $this->outerWarmSummer = $outerWarmSummer;
         return $this;
     }
 
-    public function getSeason6(): ?bool
+    public function getOuterCoolSummerWarmSpringAutumn(): ?bool
     {
-        return $this->season6;
+        return $this->outerCoolSummerWarmSpringAutumn;
     }
 
-    public function setSeason6(?bool $season6): static
+    public function setOuterCoolSummerWarmSpringAutumn(?bool $outerCoolSummerWarmSpringAutumn): static
     {
-        $this->season6 = $season6;
+        $this->outerCoolSummerWarmSpringAutumn = $outerCoolSummerWarmSpringAutumn;
         return $this;
     }
 
-    public function getSeason7(): ?bool
+    public function getOuterCoolSpringAutumnWarmWinter(): ?bool
     {
-        return $this->season7;
+        return $this->outerCoolSpringAutumnWarmWinter;
     }
 
-    public function setSeason7(?bool $season7): static
+    public function setOuterCoolSpringAutumnWarmWinter(?bool $outerCoolSpringAutumnWarmWinter): static
     {
-        $this->season7 = $season7;
+        $this->outerCoolSpringAutumnWarmWinter = $outerCoolSpringAutumnWarmWinter;
         return $this;
     }
 
-    public function getSeason8(): ?bool
+    public function getOuterColdWinter(): ?bool
     {
-        return $this->season8;
+        return $this->outerColdWinter;
     }
 
-    public function setSeason8(?bool $season8): static
+    public function setOuterColdWinter(?bool $outerColdWinter): static
     {
-        $this->season8 = $season8;
+        $this->outerColdWinter = $outerColdWinter;
         return $this;
     }
 
@@ -286,44 +272,6 @@ class CatalogItem
     public function setConstructionDetails(?string $constructionDetails): static
     {
         $this->constructionDetails = $constructionDetails;
-        return $this;
-    }
-
-    public function getParent(): ?self
-    {
-        return $this->parent;
-    }
-
-    public function setParent(?self $parent): static
-    {
-        $this->parent = $parent;
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, self>
-     */
-    public function getChildren(): Collection
-    {
-        return $this->children;
-    }
-
-    public function addChild(self $child): static
-    {
-        if (!$this->children->contains($child)) {
-            $this->children->add($child);
-            $child->setParent($this);
-        }
-        return $this;
-    }
-
-    public function removeChild(self $child): static
-    {
-        if ($this->children->removeElement($child)) {
-            if ($child->getParent() === $this) {
-                $child->setParent(null);
-            }
-        }
         return $this;
     }
 
@@ -360,37 +308,56 @@ class CatalogItem
         return $this;
     }
 
-    // Helper methods for tree operations
-    public function getLevel(): int
+    public function getHierarchyLevel(): int
     {
-        $level = 0;
-        $parent = $this->parent;
-        while ($parent !== null) {
-            $level++;
-            $parent = $parent->getParent();
+        if ($this->baseType && !$this->item) return 0;
+        if ($this->item && !$this->location) return 1;
+        if ($this->location && !$this->mainItem) return 2;
+        if ($this->mainItem && !$this->itemName) return 3;
+        if ($this->itemName) return 4;
+        return 0;
+    }
+
+    public function isMainClothing(): bool
+    {
+        return $this->item === 'Основная одежда';
+    }
+
+    public function isOuterClothing(): bool
+    {
+        return $this->item === 'Верхняя одежда';
+    }
+
+    public function getApplicableSeasons(): array
+    {
+        $seasons = [];
+
+        if ($this->isMainClothing()) {
+            if ($this->warmSummer) $seasons[] = 'warm_summer';
+            if ($this->coolSummerWarmSpringAutumn) $seasons[] = 'cool_summer_warm_spring_autumn';
+            if ($this->coolSpringAutumnWarmWinter) $seasons[] = 'cool_spring_autumn_warm_winter';
+            if ($this->coldWinter) $seasons[] = 'cold_winter';
+        } elseif ($this->isOuterClothing()) {
+            if ($this->outerWarmSummer) $seasons[] = 'warm_summer';
+            if ($this->outerCoolSummerWarmSpringAutumn) $seasons[] = 'cool_summer_warm_spring_autumn';
+            if ($this->outerCoolSpringAutumnWarmWinter) $seasons[] = 'cool_spring_autumn_warm_winter';
+            if ($this->outerColdWinter) $seasons[] = 'cold_winter';
         }
-        return $level;
+
+        return $seasons;
     }
 
-    public function isRoot(): bool
+    public function getHierarchyPath(): string
     {
-        return $this->parent === null;
-    }
+        $parts = array_filter([
+            $this->baseType,
+            $this->item,
+            $this->location,
+            $this->mainItem,
+            $this->itemName
+        ]);
 
-    public function hasChildren(): bool
-    {
-        return !$this->children->isEmpty();
-    }
-
-    public function getPath(): array
-    {
-        $path = [];
-        $current = $this;
-        while ($current !== null) {
-            array_unshift($path, $current);
-            $current = $current->getParent();
-        }
-        return $path;
+        return implode(' > ', $parts);
     }
 
     public function __toString(): string
